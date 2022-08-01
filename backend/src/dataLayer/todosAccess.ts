@@ -50,16 +50,16 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
-    // async createTodo(todoItem: TodoItem): Promise<TodoItem>{
-    //     logger.info(`Creating a todo with ID ${todoItem.todoId}`)
+    async createTodo(todoItem: TodoItem): Promise<TodoItem>{
+        logger.info(`Creating a todo with ID ${todoItem.todoId}`)
 
-    //     await this.docClient.put({
-    //         TableName: this.todosTable,
-    //         Item: todoItem
-    //     }).promise()
+        await this.docClient.put({
+            TableName: this.todosTable,
+            Item: todoItem
+        }).promise()
 
-    //     return todoItem
-    // }
+        return todoItem
+    }
         
 }
 

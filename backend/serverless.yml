@@ -105,7 +105,7 @@ functions:
           cors: true
           authorizer: Auth
           request:
-            schemas:
+            schema:
               application/json: ${file(models/create-todo-model.json)}
 
   # TODO: Configure this function
