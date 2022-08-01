@@ -1,13 +1,13 @@
 import 'source-map-support/register'
 
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 // import * as AWS from 'aws-sdk'
 import { getAllTodos } from '../../businessLogic/todos'
 // import { APIGateway } from 'aws-sdk'
 import { getToken } from  '../../auth/utils'
-// import * as middy from 'middy'
-// import { cors } from 'middy/middlewares'
+import * as middy from 'middy'
+import { cors } from 'middy/middlewares'
 
 // import { getAllTodos as getAllTodos } from '../../businessLogic/todos'
 // import { getUserId } from '../utils';
@@ -23,7 +23,7 @@ import { createLogger } from '../../utils/logger';
 
 const logger = createLogger('getAlltodos');
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent):
+export const handler = middy( async (event: APIGatewayProxyEvent):
   Promise<APIGatewayProxyResult> => {
 
     logger.info('Processing event: ', event)
@@ -40,26 +40,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true
-      },
       body: JSON.stringify({
         items: todos
       })
     }
 
-  }
+  })
 
-
-
-// export const handler = middy(
-//   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-//     console.log('Caller event, ', event)
-//     // Write your code here
-    
-//     // const userId = getUserId(event);
-//     const todos = await getAllTodos(event)
 
     
 
@@ -73,8 +60,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 // })
 
 
-// handler.use(
-//   cors({
-//     credentials: true
-//   })
-// )
+handler.use(
+  cors({
+    credentials: true
+  })
+)

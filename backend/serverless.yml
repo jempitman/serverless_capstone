@@ -9,6 +9,11 @@ plugins:
   - serverless-plugin-tracing
 
 provider:
+
+  apiGateway:
+    # To hide warning https://www.serverless.com/framework/docs/deprecations/#AWS_API_GATEWAY_NAME_STARTING_WITH_SERVICE
+    shouldStartNameWithService: true
+
   name: aws
   runtime: nodejs12.x
   lambdaHashingVersion: '20201221'
