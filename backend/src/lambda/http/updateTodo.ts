@@ -17,7 +17,7 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
     logger.info('Processing event: ', event)
-    console.log("In src/lambda/http/updateTodo.ts ")
+    console.log('In src/lambda/http/updateTodo.ts')
 
     // const jwtToken: string = getToken(event.headers.Authorization)
     
