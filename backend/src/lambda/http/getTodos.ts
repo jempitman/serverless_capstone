@@ -9,9 +9,8 @@ import { getToken } from  '../../auth/utils'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
-// import { getAllTodos as getAllTodos } from '../../businessLogic/todos'
 // import { getUserId } from '../utils';
-// import { TodoItem } from '../../models/TodoItem'
+
 
 // TODO: Get all TODO items for a current user
 
@@ -46,18 +45,6 @@ export const handler = middy( async (event: APIGatewayProxyEvent):
     }
 
   })
-
-
-    
-
-
-//     return {
-//       statusCode: 200,
-//       body: JSON.stringify({
-//         items: todos,
-//       })
-//     }
-// })
 
 
 handler.use(
