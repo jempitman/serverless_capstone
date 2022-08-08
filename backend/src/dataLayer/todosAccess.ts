@@ -11,20 +11,6 @@ const logger = createLogger('Todos-Access')
 
 // TODO: Implement the dataLayer logic
 
-// export class TodosAccess {
-//     static async getTodo(
-//         event: APIGatewayProxyEvent
-//     ): Promise<{ Items:TodoItem[]}> {
-//         const userId = getUserId(event)
-
-//         const items = await TodosAccess.getTodo(userId)
-//         return {Items: items}
-//     }
-// }
-
-
-
-
 export class TodosAccess {
     constructor(
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
@@ -50,8 +36,25 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
-    async createTodo(todoItem: TodoItem): Promise<TodoItem>{
-        logger.info(`Creating a todo with ID ${todoItem.todoId}`)
+    async getTodo(todoId: string, userId: string): Promise<TodoItem[]>{
+
+        logger.info(`Querying todoItem with ID ${todoId}`)
+
+        const result = await this.docClient.query({
+            TableName: this.todosTable,
+            KeyConditionExpression: 'todoId = :todoId AND userId = :userId',
+            ExpressionAttributeValues: {
+                ':todoId': todoId,
+                ':userId': userId   
+            }
+        }).promise()
+
+        const items = result.Items
+        return items as TodoItem[]
+    }
+
+    async newTodo(todoItem: TodoItem): Promise<TodoItem>{
+        logger.info(`Creating todoItem with ID: ${todoItem.todoId}`)
 
         await this.docClient.put({
             TableName: this.todosTable,
@@ -60,17 +63,27 @@ export class TodosAccess {
 
         return todoItem
     }
+
+    async updateTodo(updatedTodo: any): Promise<TodoItem>{
         
+        await this.docClient.update({
+            TableName: this.todosTable,
+            Key: {
+                todoId: updatedTodo.todoId,
+                userId: updatedTodo.userId},
+            ExpressionAttributeNames: {"#N": "name"},
+            UpdateExpression: "set #N = :name, dueDate = :dueDate, done = :done",
+            ExpressionAttributeValues: {
+                ":name": updatedTodo.name,
+                ":dueDate": updatedTodo.dueDate,
+                ":done": updatedTodo.done,
+            },
+            ReturnValues: "UPDATED_NEW"
+        }).promise()
+        logger.info(`Updating todoItem with ID: ${updatedTodo.todoId}`)
+
+        return updatedTodo
+    }
+            
 }
 
-// function createDynamoDBClient(){
-//     if (process.env.IS_OFFLINE){
-//         console.log('Creating a local DynamoDB instance')
-//         return new XAWS.DynamoDB.DocumentClient({
-//             region: 'localhost',
-//             endpoint: 'http://localhost:8000'
-//         })
-//     }
-
-//     return new XAWS.DynamoDB.DocumentClient()
-// }

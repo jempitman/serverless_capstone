@@ -17,6 +17,7 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
     logger.info('Processing event: ', event)
+    console.log("In src/lambda/http/updateTodo.ts ")
 
     // const jwtToken: string = getToken(event.headers.Authorization)
     
@@ -25,8 +26,11 @@ export const handler = middy(
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
+    console.log(`Fetched userId ${userId} from src/lambda/utils.ts,
+    verifying TodoItem ${todoId} exists`)
+
     logger.info(`Verifying TodoItem with ID ${todoId} exists`)
-    const item = await getTodo(userId, todoId)
+    const item = await getTodo(todoId, userId)
 
     if(item.length === 0){
         logger.error(`TodoItem with ID ${todoId} does not exist`)
