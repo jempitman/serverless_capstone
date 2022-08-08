@@ -157,19 +157,20 @@ functions:
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  # DeleteTodo:
-  #   handler: src/lambda/http/deleteTodo.handler
-  #   iamRoleStatements:
-  #     - Effect: "Allow"
-  #       Action:
-  #         - dynamodb:RemoveItem
-  #       Resource: !GetAtt TODOS_TABLE.Arn
-  #   events:
-  #     - http:
-  #         method: delete
-  #         path: todos/{todoId}
-  #         cors: true
-  #         authorizer: Auth
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+          cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements

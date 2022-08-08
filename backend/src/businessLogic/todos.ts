@@ -72,6 +72,18 @@ export async function updateTodo(
     return await todosAccess.updateTodo(updatedTodo)
 }
 
+export async function deleteTodo(
+    userId: string, todoId: string): Promise<string> {
+
+        logger.info('In deleteTodo() function')
+
+    const result = await todosAccess.deleteTodo(userId, todoId)
+
+    logger.info(`Successfully deleted Todo ${todoId}`)
+
+    return result
+}
+
 
     
 
