@@ -8,6 +8,9 @@ plugins:
   - serverless-iam-roles-per-function
   - serverless-plugin-tracing
 
+package:
+  individually: true
+  
 provider:
 
   apiGateway:
