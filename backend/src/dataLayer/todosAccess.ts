@@ -15,7 +15,9 @@ export class TodosAccess {
     constructor(
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
-        private readonly indexName = process.env.TODOS_TABLE_INDEX
+        private readonly indexName = process.env.TODOS_TABLE_INDEX,
+        // private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
+        // private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ){}
 
     async getAllTodos(userId: string): Promise<TodoItem[]>{
@@ -98,6 +100,69 @@ export class TodosAccess {
 
         return todoId as string
     }
+
+    async updateAttachmentUrl(userId: string, todoId: string, attachmentUrl: any): Promise<String> {
+
+        // const request = {
+        //     TableName: this.todosTable,
+        //     Key: {
+        //         userId,
+        //         todoId
+        //     },
+        //     UpdateExpression: 'set attachmentUrl=:URL',
+        //     ExpressionAttributeValues: {
+        //         ":URL": attachmentUrl.split("?")[0]
+        //     },
+        //     ReturnValues: 'UPDATED_NEW'
+        // }
+
+        await this.docClient.update({
+            TableName: this.todosTable,
+            Key: {
+                userId,
+                todoId
+            },
+            UpdateExpression: 'set attachmentUrl=:URL',
+            ExpressionAttributeValues: {
+                ":URL": attachmentUrl.split("?")[0]
+            },
+            ReturnValues: 'UPDATED_NEW'
+        }).promise()
+
+        // const result = await this.docClient.update(request).promise()
+        // console.log('result ', result)
+        return attachmentUrl as string
+
+    }
+
+
+    // async generateUploadUrl(todoId: string, userId: string): 
+    // Promise<String> {
+
+
+    // const s3 = new XAWS.S3({signatureVersion: 'v4'})
+    //     // const attachmentUrl = 
+    //     // `https://${this.bucketName}.s3.amazonaws.com/${todoId}.png`
+
+    // const uploadUrl = s3.getSignedURL("putObject", {
+    //     Bucket: this.bucketName,
+    //     Key: todoId,
+    //     Expires: this.urlExpiration
+    // });
+
+    //     await this.docClient.update({
+    //         TableName: this.todosTable,
+    //         Key: { userId, todoId },
+    //         UpdateExpression: "set attachmentUrl=:URL",
+    //         ExpressionAttributeValues: {
+    //             ":URL": uploadUrl.split("?")[0]
+    //         },
+    //         ReturnValues: "UPDATED_NEW"
+    //     }).promise();
+
+    // return uploadUrl
+
+    // }
             
 }
 
