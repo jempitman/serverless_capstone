@@ -1,7 +1,7 @@
 // import { APIGatewayProxyEvent } from 'aws-lambda'
 import { TodosAccess } from '../dataLayer/todosAccess'
 // import { getUserId } from '../lambda/utils'
-// import { AttachmentUtils } from '../dataLayer/attachmentUtils';
+import { AttachmentUtils } from '../dataLayer/attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { parseUserId } from '../auth/utils'
@@ -17,6 +17,7 @@ import * as uuid from 'uuid'
 
 const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
+const attachmentUtils = new AttachmentUtils();
 
 export async function getAllTodos(jwtToken: string): Promise<TodoItem[]> {
     // console.log('In getAllTodos() function')
@@ -82,6 +83,12 @@ export async function deleteTodo(
     // logger.info(`Successfully deleted Todo ${todoId}`)
 
     return result
+}
+
+export async function generateUploadUrl(todoId: string): Promise<String>{
+    logger.info('In generateUploadUrl() function')
+    
+    return await attachmentUtils.generateUploadUrl(todoId)
 }
 
 

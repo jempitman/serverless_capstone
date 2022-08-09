@@ -134,35 +134,6 @@ export class TodosAccess {
         return attachmentUrl as string
 
     }
-
-
-    // async generateUploadUrl(todoId: string, userId: string): 
-    // Promise<String> {
-
-
-    // const s3 = new XAWS.S3({signatureVersion: 'v4'})
-    //     // const attachmentUrl = 
-    //     // `https://${this.bucketName}.s3.amazonaws.com/${todoId}.png`
-
-    // const uploadUrl = s3.getSignedURL("putObject", {
-    //     Bucket: this.bucketName,
-    //     Key: todoId,
-    //     Expires: this.urlExpiration
-    // });
-
-    //     await this.docClient.update({
-    //         TableName: this.todosTable,
-    //         Key: { userId, todoId },
-    //         UpdateExpression: "set attachmentUrl=:URL",
-    //         ExpressionAttributeValues: {
-    //             ":URL": uploadUrl.split("?")[0]
-    //         },
-    //         ReturnValues: "UPDATED_NEW"
-    //     }).promise();
-
-    // return uploadUrl
-
-    // }
             
 }
 
