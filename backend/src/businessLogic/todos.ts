@@ -1,23 +1,17 @@
-// import { APIGatewayProxyEvent } from 'aws-lambda'
 import { TodosAccess } from '../dataLayer/todosAccess'
-// import { getUserId } from '../lambda/utils'
-import { AttachmentUtils } from '../dataLayer/attachmentUtils';
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { parseUserId } from '../auth/utils'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
-// import { APIGatewayEvent } from 'aws-lambda'
-// import { stringify } from 'querystring'
-// import * as createError from 'http-errors'
-// import * as AWS from 'aws-sdk'
+
 
 // TODO: Implement businessLogic
 
 const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
-const attachmentUtils = new AttachmentUtils();
+// const attachmentUtils = new AttachmentUtils();
 
 export async function getAllTodos(jwtToken: string): Promise<TodoItem[]> {
     // console.log('In getAllTodos() function')
@@ -85,19 +79,19 @@ export async function deleteTodo(
     return result
 }
 
-export async function generateUploadUrl(todoId: string): Promise<String>{
-    logger.info('In generateUploadUrl() function')
-    
-    return await attachmentUtils.generateUploadUrl(todoId)
-}
+// export async function generateUploadUrl(todoId: string): Promise<String>{
+//     logger.info('In generateUploadUrl() function')
+
+//     return await todosAccess.generateUploadUrl(todoId)
+// }
 
 
 export async function updateAttachmentUrl(
-    userId: string, todoId: string, attachmentUrl: string): Promise<String> {
+    userId: string, todoId: string): Promise<String> {
 
         logger.info('In updateAttachmentUrl() function')
 
-        return await  todosAccess.updateAttachmentUrl(userId, todoId, attachmentUrl)
+        return await  todosAccess.updateAttachmentUrl(userId, todoId)
 
 }
 
