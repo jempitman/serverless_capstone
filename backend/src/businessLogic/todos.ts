@@ -13,10 +13,10 @@ const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
 // const attachmentUtils = new AttachmentUtils();
 
-export async function getAllTodos(jwtToken: string): Promise<TodoItem[]> {
+export async function getAllTodos(userId: string): Promise<TodoItem[]> {
     // console.log('In getAllTodos() function')
     logger.info('In getAllTodos() function')
-    const userId = parseUserId(jwtToken)
+    // const userId = parseUserId(jwtToken)
     return await todosAccess.getAllTodos(userId)
 }
 
