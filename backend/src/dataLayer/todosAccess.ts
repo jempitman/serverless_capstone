@@ -115,7 +115,7 @@ export class TodosAccess {
 
         const attachmentUrl = this.s3.getSignedUrl('putObject', {
             Bucket: this.bucketName,
-            Key: todoId,
+            Key: `${todoId}.png`,
             Expires: parseInt(this.urlExpiration)
         })
         
