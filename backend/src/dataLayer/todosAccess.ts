@@ -115,7 +115,8 @@ export class TodosAccess {
 
         const attachmentUrl = this.s3.getSignedUrl('putObject', {
             Bucket: this.bucketName,
-            Key: `${todoId}.png`,
+            // Key: `${todoId}.png`,
+            Key: todoId,
             Expires: parseInt(this.urlExpiration)
         })
         
@@ -128,12 +129,11 @@ export class TodosAccess {
             UpdateExpression: 'set attachmentUrl=:URL',
             ExpressionAttributeValues: {
                 ":URL": attachmentUrl.split("?")[0]
+                // ':URL': `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
             },
             ReturnValues: 'UPDATED_NEW'
         }).promise()
 
-        // const result = await this.docClient.update(request).promise()
-        // console.log('result ', result)
         return attachmentUrl as string
 
     }
