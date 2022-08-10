@@ -6,7 +6,7 @@ service: serverless-todo-app
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-  - serverless-plugin-tracing
+  # - serverless-plugin-tracing
 
 package:
   individually: false
