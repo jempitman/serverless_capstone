@@ -22,13 +22,13 @@ export const handler = middy(
     // const url = generateUploadUrl(todoId)
     // console.log(`Upload url ${url} created`)
     
-    const result = await updateAttachmentUrl(userId, todoId)
-    console.log('update attachments url result ', result)
+    const signedUrl = await updateAttachmentUrl(userId, todoId)
+    console.log('update attachments url result ', signedUrl)
 
     return {
         statusCode: 201,
         body: JSON.stringify(
-            result
+            signedUrl
         )
   }
 })
