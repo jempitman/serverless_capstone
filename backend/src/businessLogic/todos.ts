@@ -1,7 +1,6 @@
 import { TodosAccess } from '../dataLayer/todosAccess'
 import { TodoItem } from '../models/TodoItem'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
-import { parseUserId } from '../auth/utils'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
@@ -11,12 +10,10 @@ import * as uuid from 'uuid'
 
 const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
-// const attachmentUtils = new AttachmentUtils();
 
 export async function getAllTodos(userId: string): Promise<TodoItem[]> {
     // console.log('In getAllTodos() function')
     logger.info('In getAllTodos() function')
-    // const userId = parseUserId(jwtToken)
     return await todosAccess.getAllTodos(userId)
 }
 
@@ -27,14 +24,11 @@ export async function getTodo(userId: string, todoId: string): Promise<TodoItem[
 }
 
 export async function createTodo(
-    createTodoRequest: CreateTodoRequest,
-    jwtToken: string
-    ): Promise<TodoItem> {
+    createTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
 
         logger.info('In createTodo() function')
 
         const todoId = uuid.v4()
-        const userId = parseUserId(jwtToken)
 
         logger.info(todoId, userId)
     

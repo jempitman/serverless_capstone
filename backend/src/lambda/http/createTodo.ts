@@ -3,9 +3,8 @@ import 'source-map-support/register'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
-// import { getUserId } from '../utils';
+import { getUserId } from '../utils';
 import { createTodo } from '../../businessLogic/todos'
-import { getToken } from '../../auth/utils'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('create_todos')
@@ -14,9 +13,9 @@ export const handler = middy(async (event:APIGatewayProxyEvent): Promise<APIGate
     logger.info('Processing event: ', event)
 
     const newTodo: CreateTodoRequest = JSON.parse(event.body)
-    const jwtToken: string = getToken(event.headers.Authorization)
+    const userId = getUserId(event)
 
-    const newTodoItem = await createTodo(newTodo, jwtToken)
+    const newTodoItem = await createTodo(newTodo, userId)
 
     return {
         statusCode: 201,
@@ -26,16 +25,6 @@ export const handler = middy(async (event:APIGatewayProxyEvent): Promise<APIGate
     }
 })
 
-
-
-
-// export const handler = middy(
-//   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-//     const newTodo: CreateTodoRequest = JSON.parse(event.body)
-//     // TODO: Implement creating a new TODO item
-
-//     return undefined
-// )
 
 handler.use(
   cors({
