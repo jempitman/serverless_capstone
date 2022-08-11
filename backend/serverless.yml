@@ -281,7 +281,6 @@ resources:
               Effect: Allow
               Principal: '*'
               Action: 
-                - 's3:GetObject'
-                - 's3:PutObject'
+                - 's3:*'
               Resource: 'arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*'
         Bucket: ${self:provider.environment.ATTACHMENT_S3_BUCKET}
