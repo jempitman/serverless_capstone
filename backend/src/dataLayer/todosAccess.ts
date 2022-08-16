@@ -123,18 +123,18 @@ export class TodosAccess {
         await this.docClient.update({
             TableName: this.todosTable,
             Key: {
-                userId,
-                todoId
+                userId: userId,
+                todoId: todoId
             },
             UpdateExpression: 'set attachmentUrl=:URL',
             ExpressionAttributeValues: {
-                ":URL": attachmentUrl.split("?")[0]
-                // ':URL': `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
+                // ":URL": attachmentUrl.split("?")[0]
+                ':URL': `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
             },
             ReturnValues: 'UPDATED_NEW'
         }).promise()
 
-        return attachmentUrl as string
+        return attachmentUrl
 
     }
             
