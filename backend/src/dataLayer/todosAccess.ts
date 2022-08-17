@@ -3,10 +3,12 @@ import * as AWSXRay from 'aws-xray-sdk'
 import { DocumentClient } from 'aws-sdk/clients/dynamodb'
 import { createLogger } from '../utils/logger'
 import { TodoItem } from '../models/TodoItem'
+import { FileStorage } from './fileStorage'
 
 const XAWS = AWSXRay.captureAWS(AWS)
 
 const logger = createLogger('Todos-Access')
+const fileStorage = new FileStorage
 
 // TODO: Implement the dataLayer logic
 
@@ -15,9 +17,9 @@ export class TodosAccess {
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly indexName = process.env.TODOS_TABLE_INDEX,
-        private readonly s3 = new XAWS.S3({signatureVersion: 'v4'}),
-        private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
-        private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
+        private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET
+        // private readonly s3 = new XAWS.S3({signatureVersion: "v4"}),
+        // private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ){}
 
     async getAllTodos(userId: string): Promise<TodoItem[]>{
@@ -111,20 +113,23 @@ export class TodosAccess {
     //      })
     //  }
 
-    async updateAttachmentUrl(userId: string, todoId: string): Promise<String> {
+    async updateAttachmentUrl(userId: string, todoId: string): Promise<any> {
 
-        const attachmentUrl = this.s3.getSignedUrl('putObject', {
-            Bucket: this.bucketName,
-            // Key: `${todoId}.png`,
-            Key: todoId,
-            Expires: parseInt(this.urlExpiration)
-        })
+        const attachmentUrl = await fileStorage.generateSignedUrl(userId)
+        // const attachmentUrl = this.s3.getSignedUrl('putObject', {
+        //     Bucket: this.bucketName,
+        //     Key: `${todoId}.png`,
+        //     // Key: todoId,
+        //     Expires: parseInt(this.urlExpiration)
+        // })
+
+        // logger.info(`Updating attachmentUrl field in DynamoDB: ${attachmentUrl.split("?")[0]}`)
         
         await this.docClient.update({
             TableName: this.todosTable,
             Key: {
-                userId: userId,
-                todoId: todoId
+                'userId': userId,
+                'todoId': todoId
             },
             UpdateExpression: 'set attachmentUrl=:URL',
             ExpressionAttributeValues: {
@@ -133,6 +138,8 @@ export class TodosAccess {
             },
             ReturnValues: 'UPDATED_NEW'
         }).promise()
+
+        logger.info(`attachmentsUrl field updated with URL: ${attachmentUrl.split("?")[0]}`)
 
         return attachmentUrl
 

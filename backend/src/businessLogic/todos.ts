@@ -81,7 +81,7 @@ export async function deleteTodo(
 
 
 export async function updateAttachmentUrl(
-    userId: string, todoId: string): Promise<String> {
+    userId: string, todoId: string): Promise<any> {
 
         logger.info('In updateAttachmentUrl() function')
 

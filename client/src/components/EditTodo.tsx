@@ -51,6 +51,10 @@ export class EditTodo extends React.PureComponent<
       }
 
       this.setUploadState(UploadState.FetchingPresignedUrl)
+      // console.log((this.setUploadState))
+
+      // console.log(this.props.auth.getIdToken())
+      console.log(this.props.match.params.todoId)
       const uploadUrl = await getUploadUrl(this.props.auth.getIdToken(), this.props.match.params.todoId)
 
       console.log(`UploadUrl ${uploadUrl} created`)
