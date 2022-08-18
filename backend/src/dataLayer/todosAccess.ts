@@ -8,9 +8,13 @@ import { FileStorage } from './fileStorage'
 const XAWS = AWSXRay.captureAWS(AWS)
 
 const logger = createLogger('Todos-Access')
-const fileStorage = new FileStorage
+const fileStorage = new FileStorage()
 
 // TODO: Implement the dataLayer logic
+
+/**
+ * Layer to interact with AWS databases
+ */
 
 export class TodosAccess {
     constructor(
@@ -104,14 +108,6 @@ export class TodosAccess {
     async updateAttachmentUrl(userId: string, todoId: string): Promise<any> {
 
         const attachmentUrl = await fileStorage.generateSignedUrl(todoId)
-        // const attachmentUrl = this.s3.getSignedUrl('putObject', {
-        //     Bucket: this.bucketName,
-        //     Key: `${todoId}.png`,
-        //     // Key: todoId,
-        //     Expires: parseInt(this.urlExpiration)
-        // })
-
-        // logger.info(`Updating attachmentUrl field in DynamoDB: ${attachmentUrl.split("?")[0]}`)
         
         await this.docClient.update({
             TableName: this.todosTable,
@@ -121,7 +117,6 @@ export class TodosAccess {
             },
             UpdateExpression: 'set attachmentUrl=:URL',
             ExpressionAttributeValues: {
-                // ":URL": attachmentUrl.split("?")[0]
                 ':URL': `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
             },
             ReturnValues: 'UPDATED_NEW'

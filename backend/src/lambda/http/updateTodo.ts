@@ -8,7 +8,6 @@ import { getTodo, updateTodo } from '../../businessLogic/todos'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-// import { getToken } from '../../auth/utils'
 
 
 const logger = createLogger('updateTodo')
@@ -17,17 +16,12 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
     logger.info('Processing event: ', event)
-    console.log('In src/lambda/http/updateTodo.ts')
-
-    // const jwtToken: string = getToken(event.headers.Authorization)
     
     const todoId = event.pathParameters.todoId
     const userId = getUserId(event)
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
-    console.log(`Fetched userId ${userId} from src/lambda/utils.ts,
-    verifying TodoItem ${todoId} exists`)
 
     logger.info(`Verifying TodoItem with ID ${todoId} exists`)
     const item = await getTodo(todoId, userId)

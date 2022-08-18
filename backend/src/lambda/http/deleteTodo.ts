@@ -8,6 +8,9 @@ import { deleteTodo, getTodo } from '../../businessLogic/todos'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
+
+
+
 const logger = createLogger('deleteTodo')
 
 export const handler = middy(

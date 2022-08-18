@@ -1,8 +1,9 @@
-
+import * as AWS from 'aws-sdk'
+import * as AWSXRay from 'aws-xray-sdk'
 import { createLogger } from '../utils/logger'
 
-// const XAWS = AWSXRay.captureAWS(AWS)
-const XAWS = require('aws-sdk')
+const XAWS = AWSXRay.captureAWS(AWS)
+
 
 const logger = createLogger('File-Storage')
 

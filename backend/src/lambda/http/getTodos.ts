@@ -1,14 +1,8 @@
 import 'source-map-support/register'
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-
-// import * as AWS from 'aws-sdk'
 import { getAllTodos } from '../../businessLogic/todos'
-// import { APIGateway } from 'aws-sdk'
-// import { getToken } from  '../../auth/utils'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-
 import { getUserId } from '../utils';
 
 
@@ -16,28 +10,17 @@ import { getUserId } from '../utils';
 
 import { createLogger } from '../../utils/logger';
 
-// const docClient = new AWS.DynamoDB.DocumentClient()
-
-// const todosTable = process.env.TODOS_TABLE
-
 const logger = createLogger('getAlltodos');
 
 export const handler = middy( async (event: APIGatewayProxyEvent):
   Promise<APIGatewayProxyResult> => {
 
     logger.info('Processing event: ', event)
-    // const jwtToken: string = getToken(event.headers.Authorization)
 
     const userId = getUserId(event)
 
-    // const jwtToken: string = getToken(event.headers.Authorization)
-    const todos = await getAllTodos(userId)
-    // const result = await docClient.scan({
-    //   TableName: todosTable
-    // }).promise()
-  
 
-    // const items = result.Items
+    const todos = await getAllTodos(userId)
 
     return {
       statusCode: 200,

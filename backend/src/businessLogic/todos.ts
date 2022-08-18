@@ -6,22 +6,51 @@ import { createLogger } from '../utils/logger'
 import * as uuid from 'uuid'
 
 
+/**
+ * Business logic for todos
+ * 
+ */
+
 // TODO: Implement businessLogic
 
 const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
 
+/**
+ * @func getAllTodos
+ * 
+ * @param userId 
+ * @returns all Todos for a user
+ */
 export async function getAllTodos(userId: string): Promise<TodoItem[]> {
-    // console.log('In getAllTodos() function')
+
     logger.info('In getAllTodos() function')
+
     return await todosAccess.getAllTodos(userId)
 }
 
+/**
+ * @func getTodo
+ * 
+ * @param userId 
+ * @param todoId 
+ * @returns single todo for a user
+ */
+
 export async function getTodo(userId: string, todoId: string): Promise<TodoItem[]>{
-    // console.log('In getTodo() function')
+
     logger.info('In getTodo() function')
+
     return await todosAccess.getTodo(userId, todoId)
 }
+
+/**
+ * @function createTodo
+ * 
+ * @param createTodoRequest 
+ * @param userId 
+ * @returns newly created Todo item
+ */
 
 export async function createTodo(
     createTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
@@ -44,6 +73,15 @@ export async function createTodo(
         })    
 }
 
+/**
+ * @function updateTodo
+ * 
+ * @param updateTodoRequest 
+ * @param userId 
+ * @param todoId 
+ * @returns updated Todo with 
+ */
+
 export async function updateTodo(
     updateTodoRequest: UpdateTodoRequest,
     userId: string, todoId: string): Promise<TodoItem> {
@@ -61,25 +99,30 @@ export async function updateTodo(
     return await todosAccess.updateTodo(updatedTodo)
 }
 
+/**
+ * @function deleteTodo
+ * 
+ * @param userId 
+ * @param todoId 
+ * @returns message confirming Todo has been deleted
+ */
 export async function deleteTodo(
     userId: string, todoId: string): Promise<String> {
 
         logger.info('In deleteTodo() function')
 
-    const result = await todosAccess.deleteTodo(userId, todoId)
 
-    // logger.info(`Successfully deleted Todo ${todoId}`)
-
-    return result
+    return await todosAccess.deleteTodo(userId, todoId)
 }
 
-// export async function generateUploadUrl(todoId: string): Promise<String>{
-//     logger.info('In generateUploadUrl() function')
 
-//     return await todosAccess.generateUploadUrl(todoId)
-// }
-
-
+/**
+ * @function updateAttachmentUrl
+ * 
+ * @param userId 
+ * @param todoId 
+ * @returns signedUrl to upload an image to S3
+ */
 export async function updateAttachmentUrl(
     userId: string, todoId: string): Promise<any> {
 
@@ -92,7 +135,6 @@ export async function updateAttachmentUrl(
 
 
     
-
 
 
 

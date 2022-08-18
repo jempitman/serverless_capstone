@@ -1,11 +1,7 @@
 import 'source-map-support/register'
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-
-// import * as AWS from 'aws-sdk'
 import { getTodo } from '../../businessLogic/todos'
-// import { APIGateway } from 'aws-sdk'
-// import { getToken } from  '../../auth/utils'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
@@ -31,7 +27,7 @@ export const handler = middy( async (event: APIGatewayProxyEvent):
 
     const item = await getTodo(todoId, userId)
 
-    //add id check function
+
 
     return {
       statusCode: 200,

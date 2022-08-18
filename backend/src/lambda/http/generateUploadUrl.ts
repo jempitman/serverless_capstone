@@ -33,7 +33,7 @@ export const handler = middy(
       }
 
     const signedUrl = await updateAttachmentUrl(userId, todoId)
-    console.log('update attachments url result ', signedUrl)
+    // console.log('update attachments url result ', signedUrl)
 
     return {
         statusCode: 201,
