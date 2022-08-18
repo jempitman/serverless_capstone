@@ -23,7 +23,7 @@ export const handler = middy(async (event:APIGatewayProxyEvent): Promise<APIGate
         logger.error('Empty Todo name field')
         
         return {
-          statusCode: 404,
+          statusCode: 400,
           body: "Empty TodoItem name"
         }
       }
