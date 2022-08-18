@@ -18,8 +18,6 @@ export class TodosAccess {
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly indexName = process.env.TODOS_TABLE_INDEX,
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET
-        // private readonly s3 = new XAWS.S3({signatureVersion: "v4"}),
-        // private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ){}
 
     async getAllTodos(userId: string): Promise<TodoItem[]>{
@@ -103,19 +101,9 @@ export class TodosAccess {
         return todoId as string
     }
 
-    // async generateUploadUrl(todoId: string): Promise<String>{
-    //     logger.info(`Generating uploadUrl for TodoItem with ID ${todoId}`)
- 
-    //      return this.s3.getSignedUrl('putObject', {
-    //          Bucket: this.bucketName,
-    //          Key: `${todoId}.png`,
-    //          Expires: parseInt(this.urlExpiration)
-    //      })
-    //  }
-
     async updateAttachmentUrl(userId: string, todoId: string): Promise<any> {
 
-        const attachmentUrl = await fileStorage.generateSignedUrl(userId)
+        const attachmentUrl = await fileStorage.generateSignedUrl(todoId)
         // const attachmentUrl = this.s3.getSignedUrl('putObject', {
         //     Bucket: this.bucketName,
         //     Key: `${todoId}.png`,

@@ -2,13 +2,13 @@
 import { createLogger } from '../utils/logger'
 
 // const XAWS = AWSXRay.captureAWS(AWS)
-const AWS = require('aws-sdk')
+const XAWS = require('aws-sdk')
 
 const logger = createLogger('File-Storage')
 
 export class FileStorage {
     constructor(
-        private readonly s3 = new AWS.S3({signatureVersion:'v4'}),
+        private readonly s3 = new XAWS.S3({signatureVersion:'v4'}),
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ){}

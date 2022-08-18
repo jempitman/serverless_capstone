@@ -49,9 +49,9 @@ provider:
   #           - xray:PutTraceSegments
   #         Resource: "*"
 
-custom:
-  defaultStage: dev
-  defaultRegion: eu-west-3
+# custom:
+#   defaultStage: dev
+#   defaultRegion: eu-west-3
 
 functions:
 

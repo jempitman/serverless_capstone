@@ -37,9 +37,9 @@ export const handler = middy(
 
     return {
         statusCode: 201,
-        body: JSON.stringify(
-            signedUrl
-        )
+        body: JSON.stringify({
+          uploadUrl: signedUrl
+        })
   }
     } catch (e: any){
       logger.error(e.message)
