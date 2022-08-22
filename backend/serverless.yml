@@ -256,8 +256,20 @@ functions:
           route: $disconnect
   
   SendUploadNotifications:
+    environment:
+      STAGE: ${self:provider.stage}
+      API_ID:
+        Ref: WebsocketsApi
     handler: src/lambda/s3/sendNotifications.handler
-
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CONNECTIONS_TABLE}
+      - Effect: "Allow"
+        Action:
+          - execute-api:ManageConnections
+        Resource: arn:aws:execute-api:${self:provider.region}:*:khk8bxuft3/dev/POST/@connections/{connectionId}
 resources:
   Resources:
     # Add necessary AWS resources. You will need at least the following AWS resources
