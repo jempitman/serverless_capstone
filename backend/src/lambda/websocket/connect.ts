@@ -1,26 +1,20 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
+import { websocketConnect } from "../../businessLogic/websockets"
+import { createLogger } from '../../utils/logger'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
 
-const connectionsTable = process.env.CONNECTIONS_TABLE
+const logger = createLogger('connect')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> =>{
-    console.log('Websocket connect', event)
+    logger.info('Websocket connect', event)
 
+    
     const connectionId = event.requestContext.connectionId
-    const timestamp = new Date().toISOString()
-
-    const item = {
-        id: connectionId,
-        timestamp
-    }
-
-    await docClient.put({
-        TableName: connectionsTable,
-        Item: item
-    }).promise()
+    
+    logger.info(`Adding new connection ${connectionId}`)
+    
+    await websocketConnect(connectionId)
 
 
     return {

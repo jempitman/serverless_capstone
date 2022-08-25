@@ -1,24 +1,20 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda"
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
+import { createLogger } from "../../utils/logger"
+import { websocketDisconnect } from "../../businessLogic/websockets"
 
-const docClient = new AWS.DynamoDB.DocumentClient()
-
-const connectionsTable = process.env.CONNECTIONS_TABLE
+const logger = createLogger('disconnect')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    console.log('Websocket disconnect', event)
+    logger.info('Websocket disconnect', event)
 
+    
     const connectionId = event.requestContext.connectionId
-    const key = {
-        id: connectionId
-    }
 
-    await docClient.delete({
-        TableName: connectionsTable,
-        Key: key
+    logger.info(`Removing connection ${connectionId}`)
 
-    }).promise()
+    
+    await websocketDisconnect(connectionId)
 
 
     return {
