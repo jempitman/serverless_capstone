@@ -13,7 +13,8 @@ import {
   Image,
   Loader,
   Form,
-  Radio
+  Radio,
+  CheckboxProps
 } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
@@ -29,20 +30,23 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  dueDateSort: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    dueDateSort: 'id',
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
 
-  onSortHandleChange = (event: React.ChangeEvent<HTMLFormElement>, {value}) => this.setState({ value })
+  sortHandleChange = (event: React.ChangeEvent<HTMLInputElement>) =>  this.setState({ dueDateSort: event.target.value })
+
 
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
@@ -98,7 +102,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       const todos = await getTodos(this.props.auth.getIdToken())
       this.setState({
         todos,
-        loadingTodos: false
+        loadingTodos: false,
+        dueDateSort: 'id'
       })
     } catch (e:any) {
       alert(`Failed to fetch todos: ${e.message}`)
@@ -149,24 +154,24 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     return (
       <Form>
         <Form.Field>
-          Selected value: <b>{this.state.value}</b>
+          Sort Todos by: <b>{this.state.dueDateSort}</b>
         </Form.Field>
         <Form.Field>
           <Radio
-            label='Choose this'
+            label='id'
             name='radioGroup'
-            value='this'
-            checked={this.state.value === 'this'}
-            onChange={this.handleChange}
+            value='id'
+            checked={this.state.dueDateSort === 'id'}
+            onChange={this.sortHandleChange}
           />
         </Form.Field>
         <Form.Field>
           <Radio
-            label='Or that'
+            label='dueDate'
             name='radioGroup'
-            value='that'
-            checked={this.state.value === 'that'}
-            onChange={this.handleChange}
+            value='dueDate'
+            checked={this.state.dueDateSort === 'dueDate'}
+            onChange={this.sortHandleChange}
           />
         </Form.Field>
       </Form>
