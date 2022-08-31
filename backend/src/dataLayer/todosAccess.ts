@@ -21,6 +21,7 @@ export class TodosAccess {
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly indexName = process.env.TODOS_TABLE_INDEX,
+        private readonly rankIndex = process.env.TODOS_DUE_DATE_INDEX,
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET
     ){}
 
@@ -35,7 +36,25 @@ export class TodosAccess {
             ExpressionAttributeValues: {
                 ':userId': userId
             },
-            ScanIndexForward: false
+            ScanIndexForward: true
+        }).promise()
+
+        const items = result.Items
+        return items as TodoItem[]
+    }
+
+    async getAllTodosByDueDate(userId: string): Promise<TodoItem[]>{
+
+        logger.info('Getting all Todos')
+
+        const result = await this.docClient.query({
+            TableName: this.todosTable,
+            IndexName: this.rankIndex,
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: {
+                ':userId': userId
+            },
+            ScanIndexForward: true
         }).promise()
 
         const items = result.Items

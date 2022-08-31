@@ -11,7 +11,9 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Form,
+  Radio
 } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
@@ -39,6 +41,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
+
+  onSortHandleChange = (event: React.ChangeEvent<HTMLFormElement>, {value}) => this.setState({ value })
 
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
@@ -108,6 +112,8 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
         {this.renderCreateTodoInput()}
 
+        {this.renderSortFunction()}
+
         {this.renderTodos()}
       </div>
     )
@@ -137,6 +143,36 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       </Grid.Row>
     )
   }
+
+  // With assistance from https://react.semantic-ui.com/addons/radio/#types-radio-group
+  renderSortFunction() {
+    return (
+      <Form>
+        <Form.Field>
+          Selected value: <b>{this.state.value}</b>
+        </Form.Field>
+        <Form.Field>
+          <Radio
+            label='Choose this'
+            name='radioGroup'
+            value='this'
+            checked={this.state.value === 'this'}
+            onChange={this.handleChange}
+          />
+        </Form.Field>
+        <Form.Field>
+          <Radio
+            label='Or that'
+            name='radioGroup'
+            value='that'
+            checked={this.state.value === 'that'}
+            onChange={this.handleChange}
+          />
+        </Form.Field>
+      </Form>
+    )
+  }
+
 
   renderTodos() {
     if (this.state.loadingTodos) {

@@ -31,8 +31,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
+    TODOS_TABLE: Todos-${self:provider.stage}-dueDate
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
+    TODOS_DUE_DATE_INDEX: DueDateIndex
     ATTACHMENT_S3_BUCKET: serverless-c4-todo-images-${self:provider.stage}-253852801641
     SIGNED_URL_EXPIRATION: 300
     CONNECTIONS_TABLE: Connections-serverless-todo-${self:provider.stage}
@@ -93,6 +94,32 @@ functions:
       - http:
           method: get
           path: todos
+          cors: true
+          authorizer: Auth
+  
+  GetTodosByDueDate:
+    handler: src/lambda/http/getTodosByDueDate.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+    events:
+      - http:
+          method: get
+          path: todos/rank
           cors: true
           authorizer: Auth
 
@@ -344,6 +371,8 @@ resources:
             AttributeType: S
           - AttributeName: createdAt
             AttributeType: S
+          - AttributeName: dueDate
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
@@ -359,6 +388,15 @@ resources:
               - AttributeName: userId
                 KeyType: HASH
               - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.TODOS_DUE_DATE_INDEX}
+            KeySchema:
+              - AttributeName: dueDate
+                KeyType: HASH
+              - AttributeName: todoId
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

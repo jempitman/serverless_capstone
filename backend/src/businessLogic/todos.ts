@@ -29,6 +29,14 @@ export async function getAllTodos(userId: string): Promise<TodoItem[]> {
     return await todosAccess.getAllTodos(userId)
 }
 
+
+export async function getAllTodosDueDate(userId: string): Promise<TodoItem[]> {
+
+    logger.info('In getAllTodos() function')
+
+    return await todosAccess.getAllTodosByDueDate(userId)
+}
+
 /**
  * @func getTodo
  * 
