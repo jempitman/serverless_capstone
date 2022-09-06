@@ -32,7 +32,7 @@ export async function getAllTodos(userId: string): Promise<TodoItem[]> {
 
 export async function getAllTodosDueDate(userId: string): Promise<TodoItem[]> {
 
-    logger.info('In getAllTodos() function')
+    logger.info('In getAllTodosDueDate() function')
 
     return await todosAccess.getAllTodosByDueDate(userId)
 }

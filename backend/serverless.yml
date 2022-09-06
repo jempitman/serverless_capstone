@@ -97,31 +97,31 @@ functions:
           cors: true
           authorizer: Auth
   
-  # GetTodosByDueDate:
-  #   handler: src/lambda/http/getTodosByDueDate.handler
-  #   iamRoleStatements:
-  #     - Effect: "Allow"
-  #       Action:
-  #         - dynamodb:GetItem
-  #         - dynamodb:Query
-  #         - dynamodb:Scan
-  #       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  #     - Effect: Allow
-  #       Action:
-  #         - s3:GetObject
-  #       Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
-  #     - Effect: Allow
-  #       Action:
-  #         - xray:PutTraceSegments
-  #         - xray:PutTelemetryRecords
-  #       Resource:
-  #         - '*'
-  #   events:
-  #     - http:
-  #         method: get
-  #         path: todos/rank
-  #         cors: true
-  #         authorizer: Auth
+  GetTodosByDueDate:
+    handler: src/lambda/http/getTodosByDueDate.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+          # - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/DueDateIndex
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
+    events:
+      - http:
+          method: get
+          path: todos/rank
+          cors: true
+          authorizer: Auth
 
 #Extra function to assist with update and delete functions
   GetTodo:
@@ -391,12 +391,20 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
+          # - IndexName: ${self:provider.environment.TODOS_DUE_DATE_INDEX}
+          #   KeySchema:
+          #     - AttributeName: userId
+          #       KeyType: HASH
+          #     - AttributeName: dueDate
+          #       KeyType: RANGE
+          #   Projection:
+          #     ProjectionType: ALL
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.TODOS_DUE_DATE_INDEX}
             KeySchema:
-              - AttributeName: dueDate
+              - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: todoId
+              - AttributeName: dueDate
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

@@ -45,7 +45,7 @@ export class TodosAccess {
 
     async getAllTodosByDueDate(userId: string): Promise<TodoItem[]>{
 
-        logger.info('Getting all Todos')
+        logger.info('Getting all Todos by due Date')
 
         const result = await this.docClient.query({
             TableName: this.todosTable,
