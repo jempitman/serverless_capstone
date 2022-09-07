@@ -42,6 +42,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     this.setState({ newTodoName: event.target.value })
   }
 
+  // With assistance from https://codesandbox.io/s/semantic-ui-example-forked-ls0yml?file=/example.js
   sortHandleClick = () =>  {
     try{
       // console.log(this.state.dueDate)
@@ -49,15 +50,14 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
       if(!this.state.dueDate){
 
-
-        console.log(`State of dueDate is ${this.state.dueDate}`)
-        console.log("Fetching todos according to dueDate")
+        // console.log(`State of dueDate is ${this.state.dueDate}`)
+        // console.log("Fetching todos according to dueDate")
         this.fetchTodosByDueDate()
 
       } else{
-        console.log(`State of dueDate is ${this.state.dueDate}`)
-        console.log("Fetching todos according to id")
-        this.fetchTodosById()
+        // console.log(`State of dueDate is ${this.state.dueDate}`)
+        // console.log("Fetching todos according to createdAt date")
+        this.fetchTodosByCreatedAtDate()
       }
     
 
@@ -129,7 +129,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     }
   }
 
-  async fetchTodosById(){
+  async fetchTodosByCreatedAtDate(){
     try {
       const todos = await getTodos(this.props.auth.getIdToken())
       this.setState({
@@ -282,62 +282,5 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     return dateFormat(date, 'yyyy-mm-dd') as string
   }
 
-  // renderTodosByDueDate() {
-  //   if (this.state.loadingTodos) {
-  //     return this.renderLoading()
-  //   }
-
-  //   return this.renderTodosListByDueDate()
-  // }
-
-  // renderTodosListByDueDate() {
-  //   return (
-  //     <Grid padded>
-  //       {this.state.todos.map((todo, pos) => {
-  //         return (
-  //           <Grid.Row key={todo.todoId}>
-  //             <Grid.Column width={1} verticalAlign="middle">
-  //               <Checkbox
-  //                 onChange={() => this.onTodoCheck(pos)}
-  //                 checked={todo.done}
-  //               />
-  //             </Grid.Column>
-  //             <Grid.Column width={10} verticalAlign="middle">
-  //               {todo.name}
-  //             </Grid.Column>
-  //             <Grid.Column width={3} floated="right">
-  //               {todo.dueDate}
-  //             </Grid.Column>
-  //             <Grid.Column width={1} floated="right">
-  //               <Button
-  //                 icon
-  //                 color="blue"
-  //                 onClick={() => this.onEditButtonClick(todo.todoId)}
-  //               >
-  //                 <Icon name="pencil" />
-  //               </Button>
-  //             </Grid.Column>
-  //             <Grid.Column width={1} floated="right">
-  //               <Button
-  //                 icon
-  //                 color="red"
-  //                 onClick={() => this.onTodoDelete(todo.todoId)}
-  //               >
-  //                 <Icon name="delete" />
-  //               </Button>
-  //             </Grid.Column>
-  //             {todo.attachmentUrl && (
-  //               <Image src={todo.attachmentUrl} size="small" wrapped />
-  //             )}
-  //             <Grid.Column width={16}>
-  //               <Divider />
-  //             </Grid.Column>
-  //           </Grid.Row>
-  //         )
-  //       })}
-  //     </Grid>
-  //   )
-  // }
-  
 
 }
