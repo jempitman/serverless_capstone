@@ -11,13 +11,10 @@ import {
   Icon,
   Input,
   Image,
-  Loader,
-  Form,
-  Radio,
-  CheckboxProps
+  Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo, getTodosByDueDate } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -30,7 +27,7 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
-  dueDateSort: string
+  dueDate: boolean
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
@@ -38,15 +35,37 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     todos: [],
     newTodoName: '',
     loadingTodos: true,
-    dueDateSort: 'id',
+    dueDate: false,
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
 
-  sortHandleChange = (event: React.ChangeEvent<HTMLInputElement>) =>  this.setState({ dueDateSort: event.target.value })
+  sortHandleClick = () =>  {
+    try{
+      // console.log(this.state.dueDate)
+      this.setState((sortbyDueDate) => ({ dueDate: !sortbyDueDate.dueDate }))
 
+      if(!this.state.dueDate){
+
+
+        console.log(`State of dueDate is ${this.state.dueDate}`)
+        console.log("Fetching todos according to dueDate")
+        this.fetchTodosByDueDate()
+
+      } else{
+        console.log(`State of dueDate is ${this.state.dueDate}`)
+        console.log("Fetching todos according to id")
+        this.fetchTodosById()
+      }
+    
+
+    }catch (e:any) {
+      alert(`Failed to fetch todos: ${e.message}`)
+    }
+    
+  }
 
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
@@ -78,6 +97,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       alert('Todo deletion failed')
     }
   }
+  
 
   onTodoCheck = async (pos: number) => {
     try {
@@ -97,13 +117,40 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     }
   }
 
+  async fetchTodosByDueDate(){
+    try {
+      const todos = await getTodosByDueDate(this.props.auth.getIdToken())
+      this.setState({
+        todos,
+        loadingTodos: false
+      })
+    } catch(e:any){
+      alert(`Failed to fetch sorted todos: ${e.message}`)
+    }
+  }
+
+  async fetchTodosById(){
+    try {
+      const todos = await getTodos(this.props.auth.getIdToken())
+      this.setState({
+        todos,
+        loadingTodos: false
+      })
+    } catch(e:any){
+      alert(`Failed to fetch sorted todos: ${e.message}`)
+    }
+
+
+
+  }
+
   async componentDidMount() {
     try {
       const todos = await getTodos(this.props.auth.getIdToken())
       this.setState({
         todos,
         loadingTodos: false,
-        dueDateSort: 'id'
+        // dueDate: false
       })
     } catch (e:any) {
       alert(`Failed to fetch todos: ${e.message}`)
@@ -117,7 +164,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
         {this.renderCreateTodoInput()}
 
-        {this.renderSortFunction()}
+        {this.renderSortButton()}
 
         {this.renderTodos()}
       </div>
@@ -149,32 +196,14 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     )
   }
 
-  // With assistance from https://react.semantic-ui.com/addons/radio/#types-radio-group
-  renderSortFunction() {
+  // With assistance from https://codesandbox.io/s/semantic-ui-example-forked-ls0yml?file=/example.js
+  renderSortButton() {
+    const { dueDate } = this.state;
+
     return (
-      <Form>
-        <Form.Field>
-          Sort Todos by: <b>{this.state.dueDateSort}</b>
-        </Form.Field>
-        <Form.Field>
-          <Radio
-            label='id'
-            name='radioGroup'
-            value='id'
-            checked={this.state.dueDateSort === 'id'}
-            onChange={this.sortHandleChange}
-          />
-        </Form.Field>
-        <Form.Field>
-          <Radio
-            label='dueDate'
-            name='radioGroup'
-            value='dueDate'
-            checked={this.state.dueDateSort === 'dueDate'}
-            onChange={this.sortHandleChange}
-          />
-        </Form.Field>
-      </Form>
+      <Button toggle active={dueDate} onClick={this.sortHandleClick}>
+        Sort Todos by due Date
+      </Button>
     )
   }
 
@@ -252,4 +281,63 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
     return dateFormat(date, 'yyyy-mm-dd') as string
   }
+
+  // renderTodosByDueDate() {
+  //   if (this.state.loadingTodos) {
+  //     return this.renderLoading()
+  //   }
+
+  //   return this.renderTodosListByDueDate()
+  // }
+
+  // renderTodosListByDueDate() {
+  //   return (
+  //     <Grid padded>
+  //       {this.state.todos.map((todo, pos) => {
+  //         return (
+  //           <Grid.Row key={todo.todoId}>
+  //             <Grid.Column width={1} verticalAlign="middle">
+  //               <Checkbox
+  //                 onChange={() => this.onTodoCheck(pos)}
+  //                 checked={todo.done}
+  //               />
+  //             </Grid.Column>
+  //             <Grid.Column width={10} verticalAlign="middle">
+  //               {todo.name}
+  //             </Grid.Column>
+  //             <Grid.Column width={3} floated="right">
+  //               {todo.dueDate}
+  //             </Grid.Column>
+  //             <Grid.Column width={1} floated="right">
+  //               <Button
+  //                 icon
+  //                 color="blue"
+  //                 onClick={() => this.onEditButtonClick(todo.todoId)}
+  //               >
+  //                 <Icon name="pencil" />
+  //               </Button>
+  //             </Grid.Column>
+  //             <Grid.Column width={1} floated="right">
+  //               <Button
+  //                 icon
+  //                 color="red"
+  //                 onClick={() => this.onTodoDelete(todo.todoId)}
+  //               >
+  //                 <Icon name="delete" />
+  //               </Button>
+  //             </Grid.Column>
+  //             {todo.attachmentUrl && (
+  //               <Image src={todo.attachmentUrl} size="small" wrapped />
+  //             )}
+  //             <Grid.Column width={16}>
+  //               <Divider />
+  //             </Grid.Column>
+  //           </Grid.Row>
+  //         )
+  //       })}
+  //     </Grid>
+  //   )
+  // }
+  
+
 }
