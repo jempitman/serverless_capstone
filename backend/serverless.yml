@@ -342,6 +342,19 @@ functions:
           type: dynamodb
           arn: !GetAtt TodosTable.StreamArn
 
+  SendReminderEmail:
+    handler: src/lambda/http/sendReminderEmail.handler
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - ses:*
+        Resource: "*"
+    events:
+      - http:
+          method: post
+          path: todos/sendReminderEmail
+          cors: true
+          authorizer: Auth
   
 resources:
   Resources:
