@@ -25,7 +25,7 @@ export const handler = middy( async (event: APIGatewayProxyEvent):
     const userId = getUserId(event)
     console.log(`Fetched userId ${userId}`)
 
-    const item = await getTodo(todoId, userId)
+    const item = await getTodo(userId, todoId)
 
 
 

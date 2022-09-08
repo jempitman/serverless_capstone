@@ -61,7 +61,7 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
-    async getTodo(todoId: string, userId: string): Promise<TodoItem[]>{
+    async getTodo(userId: string, todoId: string): Promise<TodoItem[]>{
 
         logger.info(`Querying todoItem with ID ${todoId}`)
 

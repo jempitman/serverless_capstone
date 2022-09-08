@@ -22,7 +22,7 @@ export const handler = middy(
    try{
 
     logger.info(`Verifying TodoItem with ID ${todoId} exists`)
-    const item = await getTodo(todoId, userId)
+    const item = await getTodo(userId, todoId)
 
       if(item.length === 0){
         logger.error(`TodoItem with ID ${todoId} does not exist`)
