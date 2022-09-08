@@ -5,13 +5,14 @@ export default class Auth {
   accessToken;
   idToken;
   expiresAt;
+  userEmail;
 
   auth0 = new auth0.WebAuth({
     domain: authConfig.domain,
     clientID: authConfig.clientId,
     redirectUri: authConfig.callbackUrl,
     responseType: 'token id_token',
-    scope: 'openid'
+    scope: 'openid profile email'
   });
 
   constructor(history) {
@@ -24,6 +25,7 @@ export default class Auth {
     this.getAccessToken = this.getAccessToken.bind(this);
     this.getIdToken = this.getIdToken.bind(this);
     this.renewSession = this.renewSession.bind(this);
+    this.userEmail = this.getUserEmail.bind(this);
   }
 
   login() {
@@ -52,6 +54,10 @@ export default class Auth {
     return this.idToken;
   }
 
+  getUserEmail() {
+    return this.userEmail;
+  }
+
   setSession(authResult) {
     // Set isLoggedIn flag in localStorage
     localStorage.setItem('isLoggedIn', 'true');
@@ -61,6 +67,7 @@ export default class Auth {
     this.accessToken = authResult.accessToken;
     this.idToken = authResult.idToken;
     this.expiresAt = expiresAt;
+    this.userEmail = authResult.userEmail;
 
     // navigate to the home route
     this.history.replace('/');
@@ -83,6 +90,7 @@ export default class Auth {
     this.accessToken = null;
     this.idToken = null;
     this.expiresAt = 0;
+    this.userEmail = null;
 
     // Remove isLoggedIn flag from localStorage
     localStorage.removeItem('isLoggedIn');

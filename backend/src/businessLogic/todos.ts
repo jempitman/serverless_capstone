@@ -61,7 +61,8 @@ export async function getTodo(userId: string, todoId: string): Promise<TodoItem[
  */
 
 export async function createTodo(
-    createTodoRequest: CreateTodoRequest, userId: string): Promise<TodoItem> {
+    createTodoRequest: CreateTodoRequest, userId: string, 
+    userEmail: string): Promise<TodoItem> {
 
         logger.info('In createTodo() function')
 
@@ -77,7 +78,8 @@ export async function createTodo(
             createdAt: new Date().toISOString(),
             name: createTodoRequest.name,
             dueDate: createTodoRequest.dueDate,
-            done: false
+            done: false,
+            userEmail: userEmail
         })    
 }
 

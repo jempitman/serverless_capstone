@@ -19,3 +19,9 @@ export function getToken(authHeader: string): string {
 
   return token
 }
+
+export function parseUserEmail(jwtToken: string): string {
+  const decodedJwt = decode(jwtToken) as JwtPayload
+
+  return decodedJwt.email
+}

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
-import { parseUserId } from "../auth/utils";
+import { parseUserId , parseUserEmail} from "../auth/utils";
 
 /**
  * Get a user id from an API Gateway event
@@ -17,4 +17,14 @@ export function getUserId(event: APIGatewayProxyEvent): string {
   // console.log('Split jwtToken, exiting src/lambda/utils.ts function')
 
   return parseUserId(jwtToken)
+}
+
+
+export function getUserEmail(event: APIGatewayProxyEvent): string {
+
+  const authorization = event.headers.Authorization
+  const split = authorization.split(' ')
+  const jwtToken = split[1]
+
+  return parseUserEmail(jwtToken)
 }
