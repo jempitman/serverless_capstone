@@ -28,6 +28,7 @@ interface TodosState {
   newTodoName: string
   loadingTodos: boolean
   dueDate: boolean
+  ascending: boolean
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
@@ -36,6 +37,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     newTodoName: '',
     loadingTodos: true,
     dueDate: false,
+    ascending: false
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,22 +45,32 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   }
 
   // With assistance from https://codesandbox.io/s/semantic-ui-example-forked-ls0yml?file=/example.js
+  // as well as this question in the Udacity Knowledge Forum (https://knowledge.udacity.com/questions/
+  //897200?utm_campaign=ret_600_auto_ndxxx_knowledge-comment-created_na&utm_source=blueshift&utm_medium
+  //=email&utm_content=ret_600_auto_ndxxx_knowledge-comment-created_na&bsft_clkid=9847c7e7-9f10-4eb6-
+  //b646-ec15c5f0dd52&bsft_uid=bc7eb4e0-674e-4a85-b3d9-4f75aa009b60&bsft_mid=6bb28aed-e03e-4ab5-bb68-
+  //74cdcc30be0b&bsft_eid=64e4ccff-21b0-44a8-abc6-a9081789abfc&bsft_txnid=16955baa-7156-4cab-b046-
+  //5509cb0b9bde&bsft_mime_type=html&bsft_ek=2022-09-08T09%3A05%3A44Z&bsft_aaid=8d7e276e-4a10-41b2-
+  //8868-423fe96dd6b2&bsft_lx=1&bsft_tv=1#897211)
+
   sortHandleClick = () =>  {
     try{
-      // console.log(this.state.dueDate)
-      this.setState((sortbyDueDate) => ({ dueDate: !sortbyDueDate.dueDate }))
 
-      if(!this.state.dueDate){
-
-        // console.log(`State of dueDate is ${this.state.dueDate}`)
-        // console.log("Fetching todos according to dueDate")
-        this.fetchTodosByDueDate()
-
-      } else{
-        // console.log(`State of dueDate is ${this.state.dueDate}`)
-        // console.log("Fetching todos according to createdAt date")
-        this.fetchTodosByCreatedAtDate()
+      const compare = (a: Todo, b: Todo) => {
+        if (a.dueDate > b.dueDate) {
+          return this.state.ascending ? -1 : 1
+        }
+        if (a.dueDate < b.dueDate) {
+          return this.state.ascending ? 1 : -1
+        }
+        return 0
       }
+
+      const sortedTodos = this.state.todos.sort(compare)
+      this.setState({
+        todos: [...sortedTodos],
+        ascending: !this.state.ascending
+      })
     
 
     }catch (e:any) {
