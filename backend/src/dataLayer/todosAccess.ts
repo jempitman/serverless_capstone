@@ -22,7 +22,8 @@ export class TodosAccess {
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly indexName = process.env.TODOS_TABLE_INDEX,
         private readonly rankIndex = process.env.TODOS_DUE_DATE_INDEX,
-        private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET
+        private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
+        private readonly simpleEmailService = new XAWS.SES()
     ){}
 
     async getAllTodos(userId: string): Promise<TodoItem[]>{
@@ -124,7 +125,7 @@ export class TodosAccess {
         return todoId as string
     }
 
-    async updateAttachmentUrl(userId: string, todoId: string): Promise<any> {
+    async updateAttachmentUrl(userId: string, todoId: string): Promise<string> {
 
         const attachmentUrl = await fileStorage.generateSignedUrl(todoId)
         
@@ -146,6 +147,11 @@ export class TodosAccess {
         return attachmentUrl
 
     }
-            
+
+    async sendReminderEmail(params): Promise<void> {
+
+        await this.simpleEmailService.sendEmail(params).promise()
+    }
+         
 }
 

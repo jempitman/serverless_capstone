@@ -3,11 +3,8 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
-import * as AWS from 'aws-sdk'
-// import * as AWSXRay from 'aws-xray-sdk'
-
-const SES = new AWS.SES()
-
+import { getUserId } from '../utils'
+import { sendReminder } from '../../businessLogic/todos'
 
 
 
@@ -18,26 +15,16 @@ export const handler = middy( async (event: APIGatewayProxyEvent):
 
         logger.info('Processing event: ', event)
 
-        const { to, from, subject, text } = JSON.parse(event.body)
-
-    
-        const params = {
-            Destination: {
-                ToAddresses: [ to ]
-
-            },
-            Message: {
-                Body: {
-                    Text: { Data: text}
-                },
-                Subject: { Data: subject}
-
-            },
-            Source: from  
-        };
 
         try {
-            await SES.sendEmail(params).promise()
+
+        const userId = getUserId(event)
+
+        const overdueTodos = await sendReminder(userId)
+
+        console.log(`Reminder Emails to be sent for the following Todos ${overdueTodos}`)
+
+            logger.info('Reminder emails were sent successfully')
             return {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -49,16 +36,11 @@ export const handler = middy( async (event: APIGatewayProxyEvent):
             return {
                 statusCode: 400,
                 body: JSON.stringify({
-                    message: 'Reminder email failed to send'
+                    message: `Reminder email failed to send: ${error}`
                 })
             }
         }
        
-
-
-        
-    
-
 })
 
 

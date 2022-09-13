@@ -349,12 +349,20 @@ functions:
         Action:
           - ses:*
         Resource: "*"
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
       - http:
           method: post
           path: todos/sendReminderEmail
           cors: true
-          authorizer: Auth
+      - schedule: 
+          rate: cron(0/15 * * * ? *)
+          enabled: true
+      
+
   
 resources:
   Resources:
@@ -543,3 +551,29 @@ resources:
                   aws:SourceIp: 
                   - 109.129.219.94/32
               Resource: '*'
+
+    # # With help from https://www.agiliq.com/blog/2022/02/serverless-cronjobs-with-lambda-events-rule/
+    # CronReminderTrigger:
+    #   Type: AWS::Events::Rule
+    #   Properties:
+    #     Name: CronReminderTrigger
+    #     Description: trigger SES reminders once a day for all incomplete and overdue TODOs
+    #     ScheduleExpression: cron(0/15 * * * ? *)
+    #     State: ENABLED
+    #     Targets:
+    #       - Id: CronReminderTrigger
+    #         Arn: arn:aws:lambda:eu-west-3:253852801641:function:serverless-todo-app-dev-SendReminderEmail
+    
+    
+    # LambdaInvokePermission:
+    #   Type: AWS::Lambda::Permission
+    #   Properties:
+    #     FunctionName: !Ref SendReminderEmail
+    #     Action: lambda:InvokeFunction
+    #     Principal: events.amazonaws.com
+    #     SourceAccount: !Ref AWS::AccountId
+    #     SourceArn:
+    #       Fn::GetAtt: [CronReminderTrigger, Arn]
+    #   # DependsOn:
+    #   #   - sendReminderEmail
+      
