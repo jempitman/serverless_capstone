@@ -53,6 +53,7 @@ provider:
 
 custom:
   topicName: todosTopic-${self:provider.stage}
+  reminderTopicName: reminderTopic-${self:provider.stage}
   # defaultStage: dev
   # defaultRegion: eu-west-3
 
@@ -354,10 +355,15 @@ functions:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     events:
-      - http:
-          method: post
-          path: todos/sendReminderEmail
-          cors: true
+      - sns:
+          arn:
+            Fn::Join:
+              - ':'
+              - - arn:aws:sns
+                - Ref: AWS::Region
+                - Ref: AWS::AccountId
+                - ${self:custom.reminderTopicName}
+          topicName: ${self:custom.reminderTopicName}
       - schedule: 
           rate: cron(0/15 * * * ? *)
           enabled: true
@@ -514,6 +520,24 @@ resources:
                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}
         Topics:
           - !Ref TodosTopic
+            
+    SNSReminderTopicPolicy:
+      Type: AWS::SNS::TopicPolicy
+      Properties:
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                AWS: "*"
+              Action: sns:Publish
+              Resource:
+                !Ref ReminderTopic
+              Condition:
+                ArnLike:
+                  AWS:SourceArn: arn:aws:events:eu-west-3:253852801641:rule/serverless-todo-app-dev-SendReminderEmailEventsRul-NBBB6CQSGD64
+        Topics:
+          - !Ref ReminderTopic
 
 
     TodosTopic:
@@ -551,29 +575,20 @@ resources:
                   aws:SourceIp: 
                   - 109.129.219.94/32
               Resource: '*'
+    
+    EmailReminderPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName: arn:aws:lambda:eu-west-3:253852801641:function:serverless-todo-app-dev-SendReminderEmail
+        Principal: events.amazonaws.com
+        Action: lambda:InvokeFunction
+        SourceAccount: !Ref AWS::AccountId
+        SourceArn: arn:aws:events:eu-west-3:253852801641:rule/serverless-todo-app-dev-SendReminderEmailEventsRul-NBBB6CQSGD64
 
-    # # With help from https://www.agiliq.com/blog/2022/02/serverless-cronjobs-with-lambda-events-rule/
-    # CronReminderTrigger:
-    #   Type: AWS::Events::Rule
-    #   Properties:
-    #     Name: CronReminderTrigger
-    #     Description: trigger SES reminders once a day for all incomplete and overdue TODOs
-    #     ScheduleExpression: cron(0/15 * * * ? *)
-    #     State: ENABLED
-    #     Targets:
-    #       - Id: CronReminderTrigger
-    #         Arn: arn:aws:lambda:eu-west-3:253852801641:function:serverless-todo-app-dev-SendReminderEmail
-    
-    
-    # LambdaInvokePermission:
-    #   Type: AWS::Lambda::Permission
-    #   Properties:
-    #     FunctionName: !Ref SendReminderEmail
-    #     Action: lambda:InvokeFunction
-    #     Principal: events.amazonaws.com
-    #     SourceAccount: !Ref AWS::AccountId
-    #     SourceArn:
-    #       Fn::GetAtt: [CronReminderTrigger, Arn]
-    #   # DependsOn:
-    #   #   - sendReminderEmail
+    ReminderTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Todos email reminder topic
+        TopicName: ${self:custom.reminderTopicName}    
+
       
