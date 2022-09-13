@@ -20,33 +20,21 @@ export class TodosAccess {
     constructor(
         private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
         private readonly todosTable = process.env.TODOS_TABLE,
-        private readonly indexName = process.env.TODOS_TABLE_INDEX,
         private readonly rankIndex = process.env.TODOS_DUE_DATE_INDEX,
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
         private readonly simpleEmailService = new XAWS.SES()
     ){}
 
+    /**
+     * @function getAllTodos
+     * 
+     * @param userId decrypted from JWT
+     * @returns array of TodoItems for the user from the Todos DynamoDB
+     */
+
     async getAllTodos(userId: string): Promise<TodoItem[]>{
 
         logger.info('Getting all Todos')
-
-        const result = await this.docClient.query({
-            TableName: this.todosTable,
-            IndexName: this.indexName,
-            KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: {
-                ':userId': userId
-            },
-            ScanIndexForward: true
-        }).promise()
-
-        const items = result.Items
-        return items as TodoItem[]
-    }
-
-    async getAllTodosByDueDate(userId: string): Promise<TodoItem[]>{
-
-        logger.info('Getting all Todos by due Date')
 
         const result = await this.docClient.query({
             TableName: this.todosTable,

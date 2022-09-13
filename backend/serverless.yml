@@ -1,4 +1,3 @@
-# TODO: Change the name of the org 
 org: jempitman
 app: serverless-todo-app
 service: serverless-todo-app
@@ -28,8 +27,7 @@ provider:
     lambda: true
     apiGateway: true
 
-  # Use these variables in the functions and resouorces section below. For example, 
-  # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
+  #environment variable definitions
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}-dueDate
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
@@ -42,24 +40,16 @@ provider:
     # Enable API Gateway logs
     restApi: true
 
-  # iam:
-  #   role:
-  #     statements:
-  #       - Effect: Allow
-  #         Action:
-  #           - xray:PutTelemetryRecords
-  #           - xray:PutTraceSegments
-  #         Resource: "*"
 
 custom:
+  #SNS topic names
   topicName: todosTopic-${self:provider.stage}
   reminderTopicName: reminderTopic-${self:provider.stage}
-  # defaultStage: dev
-  # defaultRegion: eu-west-3
 
 
 functions:
 
+  #Lambda function controlling RS256 authentication of application
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
     iamRoleStatements:
@@ -70,8 +60,7 @@ functions:
         Resource:
           - '*'
 
-  # TODO: Configure this function - 
-  # Provide iamRoleStatements property for performing Actions on DynamoDB
+  # Lambda function fetching todos from the Todos DynamoDB table and returning Todos according to DueDate
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     iamRoleStatements:
@@ -80,32 +69,6 @@ functions:
           - dynamodb:GetItem
           - dynamodb:Query
           - dynamodb:Scan
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      - Effect: Allow
-        Action:
-          - s3:GetObject
-        Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
-      - Effect: Allow
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
-    events:
-      - http:
-          method: get
-          path: todos
-          cors: true
-          authorizer: Auth
-  
-  GetTodosByDueDate:
-    handler: src/lambda/http/getTodosByDueDate.handler
-    iamRoleStatements:
-      - Effect: "Allow"
-        Action:
-          - dynamodb:GetItem
-          - dynamodb:Query
-          # - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/DueDateIndex
       - Effect: Allow
         Action:
@@ -120,7 +83,7 @@ functions:
     events:
       - http:
           method: get
-          path: todos/rank
+          path: todos
           cors: true
           authorizer: Auth
 
@@ -151,10 +114,7 @@ functions:
           cors: true
           authorizer: Auth
 
-  # TODO: Configure this function - 
-  # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
-  # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
-  # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
+  #Lambda function to create new Todos
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     iamRoleStatements:
@@ -178,8 +138,7 @@ functions:
             schema:
               application/json: ${file(models/create-todo-model.json)}
 
-  # TODO: Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
+  #Lambda function to update Todos if the user indicates they are complete or if a file has been added
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     iamRoleStatements:
@@ -208,8 +167,7 @@ functions:
             schema:
               application/json: ${file(models/update-todo-model.json)}
 
-  # TODO: Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements
+  #Lambda function to delete Todos from the DynamoDB table
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     iamRoleStatements:
@@ -231,8 +189,7 @@ functions:
           cors: true
           authorizer: Auth
 
-  # TODO: Configure this function
-  # Provide property for setting up CORS, Authorizer, iamRoleStatements
+  #Lambda function to generate a signed url from s3 for attaching files to Todos
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     iamRoleStatements:
@@ -259,6 +216,7 @@ functions:
           cors: true
           authorizer: Auth
 
+  #Lambda function to create websocket and register connection information in the Connections DynamoDB table
   ConnectHandler:
     handler: src/lambda/websocket/connect.handler
     iamRoleStatements:
@@ -278,6 +236,7 @@ functions:
       - websocket:
           route: $connect
   
+  #Lambda function to close websocket connection and remove connection information from the Connections DynamoDB table
   DisconnectHandler:
     handler: src/lambda/websocket/disconnect.handler
     iamRoleStatements:
@@ -297,6 +256,7 @@ functions:
       - websocket:
           route: $disconnect
   
+  #Lambda function to notify user over websocket connection when files are uploaded 
   SendUploadNotifications:
     environment:
       STAGE: ${self:provider.stage}
@@ -323,6 +283,7 @@ functions:
           - execute-api:ManageConnections
         Resource: arn:aws:execute-api:${self:provider.region}:*:khk8bxuft3/dev/POST/@connections/{connectionId}
 
+  #Lambda function configuration for full text search with Elastic Search and Kibana
   SyncWithElasticsearch:
     environment:
       ES_ENDPOINT: !GetAtt TodosSearch.DomainEndpoint
@@ -343,6 +304,7 @@ functions:
           type: dynamodb
           arn: !GetAtt TodosTable.StreamArn
 
+  #Lambda function configuration for automated email reminders for all overdue, incomplete Todos
   SendReminderEmail:
     handler: src/lambda/http/sendReminderEmail.handler
     iamRoleStatements:
@@ -354,6 +316,12 @@ functions:
         Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
     events:
       - sns:
           arn:
@@ -365,16 +333,13 @@ functions:
                 - ${self:custom.reminderTopicName}
           topicName: ${self:custom.reminderTopicName}
       - schedule: 
-          rate: cron(0/15 * * * ? *)
+          rate: cron(0/15 * * * ? *) #scheduled once a day, everyday at 08h30 UTC
           enabled: true
-      
-
-  
+        
 resources:
   Resources:
-    # Add necessary AWS resources. You will need at least the following AWS resources
-    # TODO: Fill the properties
-    # Feel free to change the names as you like. 
+   
+   #Resource definition for AWS API Gateway
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
       Properties:
@@ -386,8 +351,7 @@ resources:
         RestApiId:
           Ref: 'ApiGatewayRestApi'
 
-    
-    # TODO: Create a DynamoDB table with local secondary index and a composite key
+    #Resource definition for the Todos DynamoDD table
     TodosTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -418,14 +382,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-          # - IndexName: ${self:provider.environment.TODOS_DUE_DATE_INDEX}
-          #   KeySchema:
-          #     - AttributeName: userId
-          #       KeyType: HASH
-          #     - AttributeName: dueDate
-          #       KeyType: RANGE
-          #   Projection:
-          #     ProjectionType: ALL
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.TODOS_DUE_DATE_INDEX}
             KeySchema:
@@ -436,6 +392,7 @@ resources:
             Projection:
               ProjectionType: ALL
 
+    #Resource definition for the Websocket DynamoDB table
     WebSocketConnectionsDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -450,8 +407,7 @@ resources:
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.CONNECTIONS_TABLE}
 
-    # TODO: Complete the bucket properties below. 
-    # Do not forget to add the CorsConfiguration propoerty
+    #Resource definition for the s3 bucket holding all image file attachments for Todos
     AttachmentsBucket:
       Type: AWS::S3::Bucket
       DependsOn: SNSTopicPolicy
@@ -476,6 +432,8 @@ resources:
                 - HEAD
               MaxAge: 3000
     
+    #Permission definition for SendUploadNotifications Lambda function to monitor when objects
+    # are added to the s3 attachments bucket
     SendUploadNotificationsPermission:
       Type: AWS::Lambda::Permission
       Properties:
@@ -485,8 +443,7 @@ resources:
         SourceAccount: !Ref AWS::AccountId
         SourceArn: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}
 
-    # TODO: Complete the policy below and attach it to the bucket defined above
-    # For cross referencing the name of the bucket, use "!Ref AttachmentsBucket"
+    #Security policy for the s3 attachments bucket
     BucketPolicy:
       Type: AWS::S3::BucketPolicy
       Properties:
@@ -503,6 +460,8 @@ resources:
               Resource: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}/*
         Bucket: !Ref AttachmentsBucket
     
+    #Security policy allowing SNS to monitor events in the Attachments s3 bucket and triggering 
+    # the SendUploadNotifications lambda function
     SNSTopicPolicy:
       Type: AWS::SNS::TopicPolicy
       Properties:
@@ -520,7 +479,9 @@ resources:
                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}
         Topics:
           - !Ref TodosTopic
-            
+    
+    #Security polict allowing SNS to monitor the EventBridge rule for scheduling reminder emails and triggering
+    # the sendEmailReminder lambda function
     SNSReminderTopicPolicy:
       Type: AWS::SNS::TopicPolicy
       Properties:
@@ -539,13 +500,14 @@ resources:
         Topics:
           - !Ref ReminderTopic
 
-
+    #Topic configuration for the SNS topic monitoring the s3 Attachments bucket
     TodosTopic:
       Type: AWS::SNS::Topic
       Properties:
         DisplayName: Todos bucket topic
         TopicName: ${self:custom.topicName}   
 
+    #Resource configuration for the full text searching of application logs with Elasticsearch
     TodosSearch:
       Type: AWS::Elasticsearch::Domain
       Properties:
@@ -576,6 +538,7 @@ resources:
                   - 109.129.219.94/32
               Resource: '*'
     
+    #Permission definition for SNS to monitor the EventBridge rule for scheduling reminder emails
     EmailReminderPermission:
       Type: AWS::Lambda::Permission
       Properties:
@@ -585,6 +548,7 @@ resources:
         SourceAccount: !Ref AWS::AccountId
         SourceArn: arn:aws:events:eu-west-3:253852801641:rule/serverless-todo-app-dev-SendReminderEmailEventsRul-NBBB6CQSGD64
 
+    #Configuration for the SNS topic monitoring the EventBridge rule for scheduling reminder emails
     ReminderTopic:
       Type: AWS::SNS::Topic
       Properties:
