@@ -22,7 +22,7 @@ export class TodosAccess {
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly rankIndex = process.env.TODOS_DUE_DATE_INDEX,
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
-        private readonly simpleEmailService = new XAWS.SES()
+        // private readonly simpleEmailService = new XAWS.SES()
     ){}
 
     /**
@@ -136,10 +136,10 @@ export class TodosAccess {
 
     }
 
-    async sendReminderEmail(params): Promise<void> {
+    // async sendReminderEmail(params): Promise<void> {
 
-        await this.simpleEmailService.sendEmail(params).promise()
-    }
+    //     await this.simpleEmailService.sendEmail(params).promise()
+    // }
          
 }
 

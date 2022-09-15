@@ -16,27 +16,6 @@ const connectionParams = {
 
 const apiGateway = new AWS.ApiGatewayManagementApi(connectionParams)
 
-// export const handler: S3Handler = async (event: S3Event) => {
-//     for (const record of event.Records){
-//         const key = record.s3.object.key
-//         console.log('Processing s3 item with key: ', key)
-
-//         const connections = await docClient.scan({
-//             TableName: connectionsTable
-//         }).promise()
-
-//         const payload = {
-//             imageId: key
-//         }
-
-//         for (const connection of connections.Items){
-//             const connectionId = connection.id
-//             await sendMessageToClient(connectionId, payload)
-//         }
-
-//     }
-// }
-
 export const handler: SNSHandler = async (event: SNSEvent) => {
     console.log('Processing SNS event ', JSON.stringify(event))
 

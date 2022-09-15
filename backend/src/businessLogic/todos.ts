@@ -136,56 +136,56 @@ export async function updateAttachmentUrl(
 
 }
 
-/**
- * Function to find Todos for reminder emails
- * 
- * @param userId 
- * @returns list of overdue and unfinishedTodos
- */
+// /**
+//  * Function to find Todos for reminder emails
+//  * 
+//  * @param userId 
+//  * @returns list of overdue and unfinishedTodos
+//  */
 
-export async function sendReminder(userId: string): 
-Promise<void> {
+// export async function sendReminder(userId: string): 
+// Promise<void> {
     
-    logger.info('In sendReminder() function')
+//     logger.info('In sendReminder() function')
     
-    const todos = await getAllTodos(userId)
+//     const todos = await getAllTodos(userId)
 
-    const today = new Date()
+//     const today = new Date()
 
-    const nextReminderDate = new Date(today.getDate() + 1)
+//     const nextReminderDate = new Date(today.getDate() + 1)
 
-    const overdueTodos = todos.filter(todos => 
-        ((new Date(todos.dueDate)) < today) && (!todos.done))
+//     const overdueTodos = todos.filter(todos => 
+//         ((new Date(todos.dueDate)) < today) && (!todos.done))
 
 
-     overdueTodos.forEach(async overdueTodos => {
+//      overdueTodos.forEach(async overdueTodos => {
 
-        const params = {
-            Destination: {
-                ToAddresses: [ overdueTodos.userEmail ]
+//         const params = {
+//             Destination: {
+//                 ToAddresses: [ overdueTodos.userEmail ]
     
-            },
-            Message: {
-                Body: {
-                    Text: { Data: 
-                        `Todo "${overdueTodos.name}" was due to be completed on ${overdueTodos.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
+//             },
+//             Message: {
+//                 Body: {
+//                     Text: { Data: 
+//                         `Todo "${overdueTodos.name}" was due to be completed on ${overdueTodos.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
                         
-                        The next reminder will be sent on ${nextReminderDate}`}
-                },
-                Subject: { Data: 
-                    `Reminder: Todo "${overdueTodos.name}" is overdue!`}
+//                         The next reminder will be sent on ${nextReminderDate}`}
+//                 },
+//                 Subject: { Data: 
+//                     `Reminder: Todo "${overdueTodos.name}" is overdue!`}
     
-            },
-            Source: overdueTodos.userEmail 
-        };
+//             },
+//             Source: overdueTodos.userEmail 
+//         };
 
 
-        return await todosAccess.sendReminderEmail(params)
-     });
+//         return await todosAccess.sendReminderEmail(params)
+//      });
 
 
      
-}
+// }
 
 
 
