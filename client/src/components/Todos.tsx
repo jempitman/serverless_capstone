@@ -14,7 +14,7 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo, getTodosByDueDate } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
 
@@ -129,9 +129,9 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     }
   }
 
-  async fetchTodosByDueDate(){
+  async fetchTodos(){
     try {
-      const todos = await getTodosByDueDate(this.props.auth.getIdToken())
+      const todos = await getTodos(this.props.auth.getIdToken())
       this.setState({
         todos,
         loadingTodos: false
