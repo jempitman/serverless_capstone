@@ -3,6 +3,10 @@ import 'source-map-support/register'
 import { createLogger } from "../../utils/logger"
 import { websocketDisconnect } from "../../businessLogic/websockets"
 
+/**
+ * Lambda function to close a websocket connection and remove it from the Connections DynamoDB table
+ */
+
 const logger = createLogger('disconnect')
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
