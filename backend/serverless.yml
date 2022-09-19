@@ -316,28 +316,16 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      - Effect: Allow
-        Action:
-          - xray:PutTraceSegments
-          - xray:PutTelemetryRecords
-        Resource:
-          - '*'
+      # - Effect: Allow
+      #   Action:
+      #     - xray:PutTraceSegments
+      #     - xray:PutTelemetryRecords
+      #   Resource:
+      #     - '*'
     events:
-      # - sns:
-      #     arn:
-      #       Fn::Join:
-      #         - ':'
-      #         - - arn:aws:sns
-      #           - Ref: AWS::Region
-      #           - Ref: AWS::AccountId
-      #           - ${self:custom.reminderTopicName}
-      #     topicName: ${self:custom.reminderTopicName}
       - schedule: 
-          rate: cron(0/10 * * * ? *) #scheduled once a day, everyday at 08h30 UTC
+          rate: cron(30 04 * * ? *) # 04h30 UTC every day 
           enabled: true
-
-  DynamoDbNotification:
-    handler: src/lambda/dynamoDb/dynamoDbNotification.handler
         
 resources:
   Resources:
@@ -394,19 +382,6 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
-    #     NotificationConfiguration:
-    #       TopicConfigurations:
-    #         - Event: dynamodb:PutItem
-    #           Topic: !GetAtt DynamoDbNotificationLambdaFunction.Arn
-    
-    # DynamoDbNotificationPermission:
-    #   Type: AWS::Lambda::Permission
-    #   Properties:
-    #     FunctionName: !Ref DynamoDbNotificationLambdaFunction
-    #     Principal: dynamodb.amazonaws.com
-    #     Action: lambda:InvokeFunction
-    #     SourceAccount: !Ref AWS::AccountId
-    #     SourceArn: arn:aws:dynamodb:::${self:provider.environment.TODOS_TABLE}
 
     #Resource definition for the Websocket DynamoDB table
     WebSocketConnectionsDynamoDBTable:
@@ -495,26 +470,6 @@ resources:
                   AWS:SourceArn: arn:aws:s3:::${self:provider.environment.ATTACHMENT_S3_BUCKET}
         Topics:
           - !Ref TodosTopic
-    
-    #Security polict allowing SNS to monitor the EventBridge rule for scheduling reminder emails and triggering
-    # the sendEmailReminder lambda function
-    SNSReminderTopicPolicy:
-      Type: AWS::SNS::TopicPolicy
-      Properties:
-        PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Principal:
-                AWS: "*"
-              Action: sns:Publish
-              Resource:
-                !Ref ReminderTopic
-              Condition:
-                ArnLike:
-                  AWS:SourceArn: arn:aws:events:eu-west-3:253852801641:rule/serverless-todo-app-dev-SendReminderEmailEventsRul-NBBB6CQSGD64
-        Topics:
-          - !Ref ReminderTopic
 
     #Topic configuration for the SNS topic monitoring the s3 Attachments bucket
     TodosTopic:
@@ -552,23 +507,4 @@ resources:
                 IpAddress:
                   aws:SourceIp: 
                   - 109.129.219.94/32
-              Resource: '*'
-    
-    #Permission definition for SNS to monitor the EventBridge rule for scheduling reminder emails
-    EmailReminderPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName: arn:aws:lambda:eu-west-3:253852801641:function:serverless-todo-app-dev-SendReminderEmail
-        Principal: events.amazonaws.com
-        Action: lambda:InvokeFunction
-        SourceAccount: !Ref AWS::AccountId
-        SourceArn: arn:aws:events:eu-west-3:253852801641:rule/serverless-todo-app-dev-SendReminderEmailEventsRul-NBBB6CQSGD64
-
-    #Configuration for the SNS topic monitoring the EventBridge rule for scheduling reminder emails
-    ReminderTopic:
-      Type: AWS::SNS::Topic
-      Properties:
-        DisplayName: Todos email reminder topic
-        TopicName: ${self:custom.reminderTopicName}    
-
-      
+              Resource: '*'      

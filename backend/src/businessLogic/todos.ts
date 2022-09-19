@@ -8,11 +8,10 @@ import * as uuid from 'uuid'
 
 
 /**
- * Business logic for todos
+ * Business logic layer for todos
  * 
  */
 
-// TODO: Implement businessLogic
 
 const logger = createLogger('todos')
 const todosAccess = new TodosAccess();
@@ -136,56 +135,9 @@ export async function updateAttachmentUrl(
 
 }
 
-// /**
-//  * Function to find Todos for reminder emails
-//  * 
-//  * @param userId 
-//  * @returns list of overdue and unfinishedTodos
-//  */
-
-// export async function sendReminder(userId: string): 
-// Promise<void> {
-    
-//     logger.info('In sendReminder() function')
-    
-//     const todos = await getAllTodos(userId)
-
-//     const today = new Date()
-
-//     const nextReminderDate = new Date(today.getDate() + 1)
-
-//     const overdueTodos = todos.filter(todos => 
-//         ((new Date(todos.dueDate)) < today) && (!todos.done))
-
-
-//      overdueTodos.forEach(async overdueTodos => {
-
-//         const params = {
-//             Destination: {
-//                 ToAddresses: [ overdueTodos.userEmail ]
-    
-//             },
-//             Message: {
-//                 Body: {
-//                     Text: { Data: 
-//                         `Todo "${overdueTodos.name}" was due to be completed on ${overdueTodos.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
-                        
-//                         The next reminder will be sent on ${nextReminderDate}`}
-//                 },
-//                 Subject: { Data: 
-//                     `Reminder: Todo "${overdueTodos.name}" is overdue!`}
-    
-//             },
-//             Source: overdueTodos.userEmail 
-//         };
-
-
-//         return await todosAccess.sendReminderEmail(params)
-//      });
-
-
-     
-// }
+export async function getAllTodosForAllUsers(): Promise<TodoItem[]>{
+    return todosAccess.getAllTodosForAllUsers()
+}
 
 
 

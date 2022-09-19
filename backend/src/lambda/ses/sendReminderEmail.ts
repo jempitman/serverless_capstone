@@ -1,18 +1,11 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda'
-// import * as middy from 'middy'
-// import { cors } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
-// import { getUserId } from '../utils'
-// import { sendReminder } from '../../businessLogic/todos'
 import * as AWS from 'aws-sdk'
+import { getAllTodosForAllUsers } from '../../businessLogic/todos'
 // import { TodoItem } from '../../models/TodoItem'
 
-
-const docClient = new AWS.DynamoDB.DocumentClient()
 const sesClient = new AWS.SES()
-
-const todosTable = process.env.TODOS_TABLE
 
 const logger = createLogger('sendReminder')
 
@@ -21,104 +14,177 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
         logger.info('Processing event: ', event)
 
+        const allTodos = await getAllTodosForAllUsers()
 
-        try {
+        console.log(`Returned Todos: ${allTodos.length}`)
 
-            const result = await docClient.scan({
-                TableName: todosTable
-            }).promise()
+        const today = new Date()
+        const nextReminderDate = new Date(today.getDate() + 1)
 
-        
-            const todos = result.Items
-            console.log(`Todos returned = ${todos.length}`)
+        const overdueTodos = allTodos.filter(allTodos =>
+            ((new Date(allTodos.dueDate)) < today) && (!allTodos.done))
 
-            const today = new Date()
+        // let testTodo: TodoItem = allTodos[5]
 
-            const nextReminderDate = new Date(today.getDate() + 1)
+        // console.log(`${testTodo}`)
 
-            const overdueTodos = todos.filter(todos => 
-                ((new Date(todos.dueDate)) < today) && (!todos.done))
+        try{
 
+        for (let i=0; i<overdueTodos.length; i++){
 
-                console.log(`overdueTodos = ${overdueTodos.length}`)
-            overdueTodos.forEach(async overdueTodos => {
-
-                console.log(`Processing todo ${overdueTodos.name}, with dueDate ${overdueTodos.dueDate}`)
-                const params = {
-                    Destination: {
-                        ToAddresses: [ overdueTodos.userEmail ]
-            
-                    },
-                    Message: {
-                        Body: {
-                            Text: { Data: 
-                                `Todo "${overdueTodos.name}" was due to be completed on ${overdueTodos.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
-                                
-                                The next reminder will be sent on ${nextReminderDate}`}
+            const params = {
+                Destination: {
+                    ToAddresses: [overdueTodos[i].userEmail]
+                },
+                Message: {
+                    Body: {
+                        Text: { Data: 
+                            `Todo "${overdueTodos[i].name}" was due to be completed on ${overdueTodos[i].dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
+                                                
+                             The next reminder will be sent on ${nextReminderDate}`}
+                            },
+                            Subject: { Data: 
+                                `Reminder: Todo "${overdueTodos[i].name}" is overdue!`}
+                            
                         },
-                        Subject: { Data: 
-                            `Reminder: Todo "${overdueTodos.name}" is overdue!`}
-            
-                    },
-                    Source: overdueTodos.userEmail 
-                };
+                Source: overdueTodos[i].userEmail
+    
+            }
 
-                console.log(`Sending reminder email to ${overdueTodos.userEmail}`)
-                await sesClient.sendEmail(params).promise()
+            await sesClient.sendEmail(params).promise()
+        }
+           
 
-            })
-
-            console.log('Reminder emails sent successfully')
             return {
-                        statusCode: 200,
-                        body: JSON.stringify({
-                            message: 'Reminder email was sent successfully'
-                        })
-                    }              
-                
-        }catch (error) {
-             logger.error('error sending reminder email ', error)
-             console.log(`Reminder email failed to send: ${error}`)
+                            statusCode: 200,
+                            body: JSON.stringify({
+                                message: 'Reminder email was sent successfully'
+                            })
+                    } 
+
+        } catch(error){
+            logger.error('error sending reminder email ', error)
+                console.log(`Reminder email failed to send: ${error}`)
                 return {
-                        statusCode: 400,
-                        body: JSON.stringify({
-                                message: `Reminder email failed to send: ${error}`
-                        })
+                    statusCode: 400,
+                    body: JSON.stringify({
+                            message: `Reminder email failed to send: ${error}`
+                    })
                 }
         }
 
-
-    }
-
+        
 
 
 
-//         const overdueTodos = await sendReminder(userId)
 
-//         console.log(`Reminder Emails to be sent for the following Todos ${overdueTodos}`)
+        // try {
 
-//             logger.info('Reminder emails were sent successfully')
-//             return {
-//                 statusCode: 200,
-//                 body: JSON.stringify({
-//                     message: 'Reminder email was sent successfully'
-//                 })
-//               }
-//         } catch (error) {
-//             logger.error('error sending reminder email ', error)
-//             return {
-//                 statusCode: 400,
-//                 body: JSON.stringify({
-//                     message: `Reminder email failed to send: ${error}`
-//                 })
-//             }
-//         }
-       
-// })
+        //     const result = await docClient.scan({
+        //         TableName: todosTable
+        //     }).promise()
+
+        
+        //     const todos = result.Items
+        //     console.log(`Todos returned = ${todos.length}`)
+
+        //     const today = new Date()
+
+        //     const overdueTodos = todos.filter(todos => 
+        //         ((new Date(todos.dueDate)) < today) && (!todos.done))
 
 
-// handler.use(
-//     cors({
-//       credentials: true
-//     })
-//   )
+        //     console.log(`overdueTodos = ${overdueTodos.length}`)
+
+        //     // const 
+        
+        //     const nextReminderDate = new Date(today.getDate() + 1)
+                
+
+        //     overdueTodos.forEach(async overdueTodos => {
+
+                
+
+        //             const params = {
+        //                 Destination: {
+        //                     ToAddresses: [ overdueTodos.userEmail ]
+                
+        //                 },
+        //                 Message: {
+        //                     Body: {
+        //                         Text: { Data: 
+        //                             `Todo "${overdueTodos.name}" was due to be completed on ${overdueTodos.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
+                                    
+        //                             The next reminder will be sent on ${nextReminderDate}`}
+        //                     },
+        //                     Subject: { Data: 
+        //                         `Reminder: Todo "${overdueTodos.name}" is overdue!`}
+                
+        //                 },
+        //                 Source: overdueTodos.userEmail 
+        //             }
+            
+    
+        //             console.log(`Sending reminder email ${JSON.stringify(params)} to ${overdueTodos.userEmail}`)
+        //             await sesClient.sendEmail(params).promise()
+    
+        //             console.log('Reminder emails sent successfully')
+                                 
+        //     })
+                
+                
+            
+        //     return {
+        //             statusCode: 200,
+        //             body: JSON.stringify({
+        //                 message: 'Reminder email was sent successfully'
+        //             })
+        //     }      
+            
+        // }catch (error) {
+        //     logger.error('error sending reminder email ', error)
+        //     console.log(`Reminder email failed to send: ${error}`)
+        //     return {
+        //         statusCode: 400,
+        //         body: JSON.stringify({
+        //                 message: `Reminder email failed to send: ${error}`
+        //         })
+        //     }
+
+             
+        // }
+
+
+}
+
+    // function createReminderEmail(overdueTodos:TodoItem[], today: Date) {
+
+
+    //     const nextReminderDate = new Date(today.getDate() + 1)
+
+    //     for (let i=0; i< overdueTodos.length(); i++){
+
+    //     }
+    //     const params = {
+    //         Destination: {
+    //             ToAddresses: [ overdueTodos.userEmail ]
+    
+    //         },
+    //         Message: {
+    //             Body: {
+    //                 Text: { Data: 
+    //                     `Todo "${overdueTodo.name}" was due to be completed on ${overdueTodo.dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
+                        
+    //                     The next reminder will be sent on ${nextReminderDate}`}
+    //             },
+    //             Subject: { Data: 
+    //                 `Reminder: Todo "${overdueTodo.name}" is overdue!`}
+    
+    //         },
+    //         Source: overdueTodo.userEmail 
+    //     }
+
+    //     return params
+
+
+    // }

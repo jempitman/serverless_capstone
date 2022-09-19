@@ -10,10 +10,8 @@ const XAWS = AWSXRay.captureAWS(AWS)
 const logger = createLogger('Todos-Access')
 const fileStorage = new FileStorage()
 
-// TODO: Implement the dataLayer logic
-
 /**
- * Layer to interact with AWS databases
+ * Layer to interact with AWS DynamoDB table and update the at
  */
 
 export class TodosAccess {
@@ -22,7 +20,6 @@ export class TodosAccess {
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly rankIndex = process.env.TODOS_DUE_DATE_INDEX,
         private readonly bucketName = process.env.ATTACHMENT_S3_BUCKET,
-        // private readonly simpleEmailService = new XAWS.SES()
     ){}
 
     /**
@@ -50,6 +47,15 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
+    /**
+     * @function getTodo
+     * 
+     * @param userId decrypted from JWT
+     * @param todoId extracted from request path
+     * 
+     * @returns single Todo for verification purposes in the DeleteTodo and UpdateTodo functions
+     */
+
     async getTodo(userId: string, todoId: string): Promise<TodoItem[]>{
 
         logger.info(`Querying todoItem with ID ${todoId}`)
@@ -67,6 +73,13 @@ export class TodosAccess {
         return items as TodoItem[]
     }
 
+    /**
+     * @function newTodo
+     * 
+     * @param todoItem attributes required for a new Todo from frontend
+     * @returns complete TodoItem with all attributes required for Dynamodb table
+     */
+
     async newTodo(todoItem: TodoItem): Promise<TodoItem>{
         logger.info(`Creating todoItem with ID: ${todoItem.todoId}`)
 
@@ -77,6 +90,13 @@ export class TodosAccess {
 
         return todoItem
     }
+
+    /**
+     * @function updateTodo
+     * 
+     * @param updatedTodo user supplied attributes required for updating a Todo
+     * @returns full TodoItem with updated details
+     */
 
     async updateTodo(updatedTodo: any): Promise<TodoItem>{
         
@@ -99,6 +119,15 @@ export class TodosAccess {
         return updatedTodo
     }
 
+    /**
+     * @function deleteTodo to remove Todos
+     * 
+     * @param userId to access correct partition in Todos DynamoDB table
+     * @param todoId to find the todo to be deleted
+     * 
+     * @return string of deleted todo for confirmation message
+     */
+
     async deleteTodo(userId: string, todoId: string): Promise<string>{
         
         await this.docClient.delete({
@@ -112,6 +141,15 @@ export class TodosAccess {
 
         return todoId as string
     }
+
+    /**
+     * @function updateAttachmentUrl to request a signed URL from s3 and update
+     * attachmentUrl field in Todo
+     * 
+     * @param userId to access correct partition in Todos DynamoDB table
+     * @param todoId to find the todo to be updated
+     * @returns signedUrl string
+     */
 
     async updateAttachmentUrl(userId: string, todoId: string): Promise<string> {
 
@@ -135,11 +173,22 @@ export class TodosAccess {
         return attachmentUrl
 
     }
+    
+    /**
+     * Get all items in the TodosTables
+     * @returns all Todos for all Users
+     */
+    async getAllTodosForAllUsers(): Promise<TodoItem[]> {
 
-    // async sendReminderEmail(params): Promise<void> {
+        const result = await this.docClient.scan({
+            TableName: this.todosTable
+        }).promise()
 
-    //     await this.simpleEmailService.sendEmail(params).promise()
-    // }
-         
+        const items = result.Items
+        return items as TodoItem[]
+
+    }
+
+   
 }
 
