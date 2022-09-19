@@ -1,6 +1,10 @@
 import { createLogger } from '../utils/logger'
 import { WebsocketAccess } from '../dataLayer/websocketAccess'
 
+/**
+ * Businesslogic for websockets to register new connections and remove inactive connections 
+ * 
+ */
 
 const logger = createLogger('websockets')
 

@@ -2,6 +2,13 @@ import { DynamoDBStreamEvent, DynamoDBStreamHandler } from "aws-lambda"
 import 'source-map-support/register'
 import * as elasticsearch from 'elasticsearch'
 import * as httpAwsEs from 'http-aws-es'
+import { createLogger } from '../../utils/logger'
+
+/**
+ * Function to duplicate new and updatedTodos from the DynamoDB stream to ElasticSearch 
+ */
+
+const logger = createLogger('elasticsearch')
 
 const esHost = process.env.ES_ENDPOINT
 
@@ -11,12 +18,11 @@ const es = new elasticsearch.Client({
 })
 
 
-
 export const handler: DynamoDBStreamHandler = async (event: DynamoDBStreamEvent) => {
-    console.log('Processing events batch from DynamoDB', JSON.stringify(event))
+    logger.info('Processing events batch from DynamoDB', JSON.stringify(event))
 
     for (const record of event.Records){
-        console.log('Processing record', JSON.stringify(record))
+        logger.info('Processing record', JSON.stringify(record))
 
         if (record.eventName !== 'INSERT'){
             continue
