@@ -5,6 +5,9 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('sendNotifications')
 
+/**
+ * Lambda function to post s3 Notifications to users via the websocket portal
+ */
 
 const docClient = new AWS.DynamoDB.DocumentClient()
 
