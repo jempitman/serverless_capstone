@@ -5,8 +5,11 @@ import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { getUserId } from '../utils';
 
-
-// TODO: Get all TODO items for a current user
+/**
+ * Lambda function to fetch all Todos for a user and return according to due date
+ * 
+ * GET endpoint: https://{{apiId}}.execute-api.{{region}}.amazonaws.com/dev/todos
+ */
 
 import { createLogger } from '../../utils/logger';
 

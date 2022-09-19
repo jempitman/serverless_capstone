@@ -10,6 +10,12 @@ import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('generateUploadUrl')
 
+/**
+ * Lambda function to coordinate signedUrl requests from s3, pass signedUrl to frontend 
+ * for uploading new file and update attachmentsUrl attribute for Todos
+ * 
+ * POST endpoint: https://{{apiId}}.execute-api.{region}.amazonaws.com/dev/todos/{todoId}/attachment
+ */
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -17,7 +23,6 @@ export const handler = middy(
 
     const userId = getUserId(event)
     const todoId = event.pathParameters.todoId
-    // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
 
    try{
 

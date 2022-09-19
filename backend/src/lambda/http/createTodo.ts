@@ -7,6 +7,15 @@ import { getUserId, getUserEmail } from '../utils';
 import { createTodo } from '../../businessLogic/todos'
 import { createLogger } from '../../utils/logger'
 
+/**
+ * Lambda function to create new Todos 
+ * 
+ * @parameter CreateTodoRequest - basic requirements for a new Todo to be added to the Dynamodb
+ * 
+ * POST endpoint: https://{{apiId}}.execute-api.{{region}}.amazonaws.com/dev/todos 
+ */
+
+
 const logger = createLogger('create_todos')
 
 export const handler = middy(async (event:APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {

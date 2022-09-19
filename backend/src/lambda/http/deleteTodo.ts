@@ -8,7 +8,11 @@ import { deleteTodo, getTodo } from '../../businessLogic/todos'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 
-
+/**
+ * Lambda function to remove items from Todos Table
+ * 
+ * DELETE endpoint: https://{{apiId}}.execute-api.{{region}}.amazonaws.com/dev/todos/{todoId}
+ */
 
 
 const logger = createLogger('deleteTodo')
@@ -16,14 +20,14 @@ const logger = createLogger('deleteTodo')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('Processing event: ', event)
-    console.log('In src/lambda/http/deleteTodo.ts')
+    
+    logger.info('In src/lambda/http/deleteTodo.ts')
     
     const todoId = event.pathParameters.todoId
     const userId = getUserId(event)
 
-    // TODO: Remove a TODO item by id
 
-    console.log(`Fetched userId ${userId} from src/lambda/utils.ts,
+    logger.info(`Fetched userId ${userId} from src/lambda/utils.ts,
     verifying TodoItem ${todoId} exists`)
 
     logger.info(`Verifying TodoItem with ID ${todoId} exists`)

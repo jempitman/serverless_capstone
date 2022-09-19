@@ -7,23 +7,25 @@ import { cors } from 'middy/middlewares'
 
 import { getUserId } from '../utils';
 
-
-// TODO: Get all TODO items for a current user
-
+/**
+ * Lambda function to return a single Todo for a user
+ * 
+ * GET endpoint: https://{{apiId}}.execute-api.{{region}}.amazonaws.com/dev/todos/{todoId}
+ */
 import { createLogger } from '../../utils/logger';
 
 const logger = createLogger('getTodo');
 
 export const handler = middy( async (event: APIGatewayProxyEvent):
   Promise<APIGatewayProxyResult> => {
-    console.log('Entering getTodo function')
+    // console.log('Entering getTodo function')
 
     logger.info('Processing event: ', event)
 
     const todoId = event.pathParameters.todoId
-    console.log('Fetching todoId from Path')
+    // console.log('Fetching todoId from Path')
     const userId = getUserId(event)
-    console.log(`Fetched userId ${userId}`)
+    // console.log(`Fetched userId ${userId}`)
 
     const item = await getTodo(userId, todoId)
 
