@@ -3,7 +3,17 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { createLogger } from '../../utils/logger'
 import * as AWS from 'aws-sdk'
 import { getAllTodosForAllUsers } from '../../businessLogic/todos'
-// import { TodoItem } from '../../models/TodoItem'
+
+
+/**
+ * Lambda function to find all overdue and incomplete todos for all users and send
+ * email reminders once a day at 04h30 UTC. The schedule time may be adjusted in the
+ * sendReminderEmail function definition in the serverless.yml file 
+ * 
+ * The email address used for reminders
+ * is taken from the JWT login token and must be registered with AWS SES in order to
+ * received reminders
+ */
 
 const sesClient = new AWS.SES()
 
@@ -14,21 +24,22 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
         logger.info('Processing event: ', event)
 
+        try{
+
+        logger.info('Fetching all Todos for all users')
+
         const allTodos = await getAllTodosForAllUsers()
 
         console.log(`Returned Todos: ${allTodos.length}`)
 
         const today = new Date()
-        const nextReminderDate = new Date(today.getDate() + 1)
-
+        
+        logger.info('Extracting all incomplete and overdue todos')
         const overdueTodos = allTodos.filter(allTodos =>
             ((new Date(allTodos.dueDate)) < today) && (!allTodos.done))
-
-        // let testTodo: TodoItem = allTodos[5]
-
-        // console.log(`${testTodo}`)
-
-        try{
+  
+        
+        logger.info('Incomplete and overdue Todos fetched, preparing reminder email run')
 
         for (let i=0; i<overdueTodos.length; i++){
 
@@ -39,9 +50,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
                 Message: {
                     Body: {
                         Text: { Data: 
-                            `Todo "${overdueTodos[i].name}" was due to be completed on ${overdueTodos[i].dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails
-                                                
-                             The next reminder will be sent on ${nextReminderDate}`}
+                            `Todo "${overdueTodos[i].name}" was due to be completed on ${overdueTodos[i].dueDate} and is now overdue. Either mark as complete or delete from list to avoid receiving further reminder emails`}
                             },
                             Subject: { Data: 
                                 `Reminder: Todo "${overdueTodos[i].name}" is overdue!`}

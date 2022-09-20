@@ -305,6 +305,7 @@ functions:
           arn: !GetAtt TodosTable.StreamArn
 
   #Lambda function configuration for automated email reminders for all overdue, incomplete Todos
+  # to be sent once a day at 04h30 UTC
   SendReminderEmail:
     handler: src/lambda/ses/sendReminderEmail.handler
     iamRoleStatements:
@@ -316,12 +317,6 @@ functions:
         Action:
           - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-      # - Effect: Allow
-      #   Action:
-      #     - xray:PutTraceSegments
-      #     - xray:PutTelemetryRecords
-      #   Resource:
-      #     - '*'
     events:
       - schedule: 
           rate: cron(30 04 * * ? *) # 04h30 UTC every day 
